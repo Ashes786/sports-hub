@@ -182,7 +182,6 @@ export default function AdminDashboard() {
         <div className="grid lg:grid-cols-2 gap-6 mb-8">
           <Card>
             <CardHeader>
-              <CardTitle>Team Distribution</CardTitle>
               <CardDescription>Number of members per team</CardDescription>
             </CardHeader>
             <CardContent>
@@ -192,7 +191,6 @@ export default function AdminDashboard() {
 
           <Card>
             <CardHeader>
-              <CardTitle>User Statistics</CardTitle>
               <CardDescription>Students vs Admins</CardDescription>
             </CardHeader>
             <CardContent>
@@ -209,7 +207,6 @@ export default function AdminDashboard() {
         {/* Latest Posts */}
         <Card>
           <CardHeader>
-            <CardTitle>Latest Posts</CardTitle>
             <CardDescription>Most recent community updates</CardDescription>
           </CardHeader>
           <CardContent>

@@ -168,25 +168,6 @@ export default function UpcomingEvents() {
       onLogout={handleLogout}
     >
       <div className="max-w-7xl mx-auto">
-        {/* Hero Section */}
-        <div className="relative bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-lg overflow-hidden mb-8">
-          <div className="absolute inset-0 bg-black opacity-20"></div>
-          <div 
-            className="absolute inset-0 bg-cover bg-center opacity-30"
-            style={{
-              backgroundImage: 'url("https://images.unsplash.com/photo-1542869812-043c0986eb0e4b4ccf9d5?w=1920&h=1080&fit=crop")'
-            }}
-          ></div>
-          <div className="relative z-10 px-4 py-16 text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">
-              Upcoming Events
-            </h1>
-            <p className="text-xl md:text-2xl mb-8 text-blue-100 max-w-3xl mx-auto">
-              Discover and participate in exciting sports competitions
-            </p>
-          </div>
-        </div>
-
         {/* Events Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {events.map((event) => {

@@ -242,7 +242,6 @@ export default function StudentFeed() {
     >
       <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Community Feed</h1>
           <Button onClick={() => setShowCreateForm(true)} className="bg-blue-600 hover:bg-blue-700">
             <Plus className="h-4 w-4 mr-2" />
             Create Post

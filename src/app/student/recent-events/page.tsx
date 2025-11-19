@@ -177,25 +177,6 @@ export default function RecentEvents() {
       onLogout={handleLogout}
     >
       <div className="max-w-7xl mx-auto">
-        {/* Hero Section */}
-        <div className="relative bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-lg overflow-hidden mb-8">
-          <div className="absolute inset-0 bg-black opacity-20"></div>
-          <div 
-            className="absolute inset-0 bg-cover bg-center opacity-30"
-            style={{
-              backgroundImage: 'url("https://images.unsplash.com/photo-1541319575-e4e2-4d6c-0d474a3e772?w=1920&h=1080&fit=crop")'
-            }}
-          ></div>
-          <div className="relative z-10 px-4 py-16 text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">
-              Recent Events
-            </h1>
-            <p className="text-xl md:text-2xl mb-8 text-blue-100 max-w-3xl mx-auto">
-              Stay updated with upcoming sports activities and competitions
-            </p>
-          </div>
-        </div>
-
         {/* Events List */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {events.map((event) => {

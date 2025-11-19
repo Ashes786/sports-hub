@@ -145,7 +145,6 @@ export default function AdminPosts() {
       <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Manage Posts</h2>
             <p className="text-gray-600 mt-1">Moderate and manage all user posts</p>
           </div>
         </div>
@@ -174,12 +173,14 @@ export default function AdminPosts() {
 
         {/* Posts List */}
         <Card>
-          <CardHeader>
-            <CardTitle>Posts ({filteredPosts.length})</CardTitle>
-            <CardDescription>All user posts in the system</CardDescription>
-          </CardHeader>
-          <CardContent>
+          <CardContent className="p-4">
             <div className="space-y-6 max-h-96 overflow-y-auto">
+              {filteredPosts.length === 0 && (
+                <div className="text-center py-8 text-gray-500">
+                  <MessageSquare className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                  <p>No posts found matching your search criteria.</p>
+                </div>
+              )}
               {filteredPosts.map((post) => (
                 <div key={post.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
                   <div className="flex items-start space-x-3">

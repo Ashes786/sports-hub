@@ -128,7 +128,6 @@ export default function AdminAnnouncements() {
       <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Manage Announcements</h2>
             <p className="text-gray-600 mt-1">Create and manage official announcements</p>
           </div>
           <Button className="bg-blue-600 hover:bg-blue-700">

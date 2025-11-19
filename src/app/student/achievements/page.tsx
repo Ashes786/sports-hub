@@ -177,25 +177,6 @@ export default function Achievements() {
       onLogout={handleLogout}
     >
       <div className="max-w-7xl mx-auto">
-        {/* Hero Section */}
-        <div className="relative bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-lg overflow-hidden mb-8">
-          <div className="absolute inset-0 bg-black opacity-20"></div>
-          <div 
-            className="absolute inset-0 bg-cover bg-center opacity-30"
-            style={{
-              backgroundImage: 'url("https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1920&h=1080&fit=crop")'
-            }}
-          ></div>
-          <div className="relative z-10 px-4 py-16 text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">
-              Student Achievements
-            </h1>
-            <p className="text-xl md:text-2xl mb-8 text-blue-100 max-w-3xl mx-auto">
-              Celebrate your sports accomplishments and milestones
-            </p>
-          </div>
-        </div>
-
         {/* Stats Overview */}
         <div className="grid md:grid-cols-4 gap-6 mb-8">
           <Card>

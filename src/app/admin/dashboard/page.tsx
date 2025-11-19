@@ -8,7 +8,8 @@ import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { TeamDistributionChart } from '@/components/charts/TeamDistributionChart'
 import { UserStatsChart } from '@/components/charts/UserStatsChart'
-import { Users, Calendar, Trophy, MessageSquare, LogOut, Settings, Home } from 'lucide-react'
+import { Users, Calendar, Trophy, MessageSquare, Plus, UserPlus } from 'lucide-react'
+import { AdminNav } from '@/components/layout/AdminNav'
 import Link from 'next/link'
 
 interface DashboardData {
@@ -46,15 +47,33 @@ interface DashboardData {
 export default function AdminDashboard() {
   const [data, setData] = useState<DashboardData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [userName, setUserName] = useState('')
   const router = useRouter()
 
   useEffect(() => {
     fetchDashboardData()
+    // Get user name from localStorage
+    const user = localStorage.getItem('user')
+    if (user) {
+      const userData = JSON.parse(user)
+      setUserName(userData.name)
+    }
   }, [])
 
   const fetchDashboardData = async () => {
     try {
-      const token = localStorage.getItem('token')
+      // Try to get token from localStorage first, then from cookie
+      let token = localStorage.getItem('token')
+      
+      if (!token) {
+        // Fallback to cookie if localStorage is empty
+        const cookies = document.cookie.split(';')
+        const tokenCookie = cookies.find(cookie => cookie.trim().startsWith('token='))
+        if (tokenCookie) {
+          token = tokenCookie.trim().split('=')[1]
+        }
+      }
+      
       if (!token) {
         router.push('/login')
         return
@@ -81,9 +100,6 @@ export default function AdminDashboard() {
   }
 
   const handleLogout = () => {
-    // Clear token cookie and user data
-    document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT'
-    localStorage.removeItem('user')
     router.push('/')
   }
 
@@ -101,74 +117,62 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Navigation Header */}
-      <nav className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-3">
-              <img
-                src="/numl-logo-official.png"
-                alt="NUML Logo"
-                className="w-10 h-10 object-contain rounded-full"
-              />
-              <span className="text-xl font-bold text-gray-900">Admin Dashboard</span>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Badge variant="destructive">Admin</Badge>
-              <Button variant="ghost" size="sm" onClick={handleLogout}>
-                <LogOut className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </div>
-      </nav>
-
+      <AdminNav userName={userName} onLogout={handleLogout} />
+      
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Stats Cards */}
+        {/* Quick Actions */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Students</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{data.stats.totalStudents}</div>
-              <p className="text-xs text-muted-foreground">Registered students</p>
-            </CardContent>
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+            <Link href="/admin/students">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Manage Students</CardTitle>
+                <UserPlus className="h-4 w-4 text-blue-600" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{data.stats.totalStudents}</div>
+                <p className="text-xs text-muted-foreground">Add, edit, remove students</p>
+              </CardContent>
+            </Link>
           </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Teams</CardTitle>
-              <Trophy className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{data.stats.totalTeams}</div>
-              <p className="text-xs text-muted-foreground">Active teams</p>
-            </CardContent>
+          
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+            <Link href="/admin/teams">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Manage Teams</CardTitle>
+                <Trophy className="h-4 w-4 text-green-600" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{data.stats.totalTeams}</div>
+                <p className="text-xs text-muted-foreground">Create and manage teams</p>
+              </CardContent>
+            </Link>
           </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Events</CardTitle>
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{data.stats.totalEvents}</div>
-              <p className="text-xs text-muted-foreground">Scheduled events</p>
-            </CardContent>
+          
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+            <Link href="/admin/events">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Manage Events</CardTitle>
+                <Calendar className="h-4 w-4 text-orange-600" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{data.stats.totalEvents}</div>
+                <p className="text-xs text-muted-foreground">Create tournaments and matches</p>
+              </CardContent>
+            </Link>
           </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Posts</CardTitle>
-              <MessageSquare className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{data.stats.totalPosts}</div>
-              <p className="text-xs text-muted-foreground">Community posts</p>
-            </CardContent>
+          
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+            <Link href="/admin/announcements">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Announcements</CardTitle>
+                <Plus className="h-4 w-4 text-purple-600" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">Active</div>
+                <p className="text-xs text-muted-foreground">Send updates to students</p>
+              </CardContent>
+            </Link>
           </Card>
         </div>
 

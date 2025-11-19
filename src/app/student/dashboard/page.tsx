@@ -1,21 +1,13 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter, usePathname } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { 
-  Home, 
-  Users, 
-  Calendar, 
-  Plus, 
-  Settings, 
-  LogOut,
-  MessageSquare,
-  Clock
-} from 'lucide-react'
+import { StudentNav } from '@/components/layout/StudentNav'
+import { Calendar, Clock, Users, Plus } from 'lucide-react'
 import Link from 'next/link'
 
 interface StudentData {
@@ -67,33 +59,29 @@ interface DashboardData {
   }>
 }
 
-const menuItems = [
-  { icon: Home, label: 'Home', href: '/student/dashboard' },
-  { icon: Users, label: 'My Team', href: '/student/team' },
-  { icon: Calendar, label: 'Events', href: '/student/events' },
-  { icon: Plus, label: 'Create Post', href: '/student/create-post' },
-  { icon: Settings, label: 'Settings', href: '/student/settings' },
-]
-
 export default function StudentDashboard() {
   const [data, setData] = useState<DashboardData | null>(null)
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState('feed')
   const router = useRouter()
-  const pathname = usePathname()
 
   useEffect(() => {
     fetchDashboardData()
   }, [])
 
-  useEffect(() => {
-    // Set active tab based on current path
-    if (pathname === '/student/dashboard') setActiveTab('feed')
-  }, [pathname])
-
   const fetchDashboardData = async () => {
     try {
-      const token = localStorage.getItem('token')
+      // Try to get token from localStorage first, then from cookie
+      let token = localStorage.getItem('token')
+      
+      if (!token) {
+        // Fallback to cookie if localStorage is empty
+        const cookies = document.cookie.split(';')
+        const tokenCookie = cookies.find(cookie => cookie.trim().startsWith('token='))
+        if (tokenCookie) {
+          token = tokenCookie.trim().split('=')[1]
+        }
+      }
+      
       if (!token) {
         router.push('/login')
         return
@@ -120,9 +108,6 @@ export default function StudentDashboard() {
   }
 
   const handleLogout = () => {
-    // Clear token cookie and user data
-    document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT'
-    localStorage.removeItem('user')
     router.push('/')
   }
 
@@ -139,147 +124,195 @@ export default function StudentDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="px-4 py-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <img
-                src="/numl-logo-official.png"
-                alt="NUML Logo"
-                className="w-8 h-8 object-contain rounded-full"
-              />
-              <span className="text-lg font-bold text-gray-900">NUML Sports Hub</span>
-            </div>
-            <div className="flex items-center space-x-4">
-              <div className="text-right">
-                <p className="text-sm font-medium text-gray-900">{data.student.name}</p>
-                <p className="text-xs text-gray-500">ID: {data.student.studentID}</p>
-              </div>
-              {data.student.team && (
-                <Badge variant="secondary" className="bg-blue-100 text-blue-800">
-                  {data.student.team.name}
-                </Badge>
-              )}
-              <Button variant="ghost" size="sm" onClick={handleLogout}>
-                <LogOut className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <div className="flex">
-        {/* Sidebar */}
-        <aside className="w-64 bg-white shadow-sm min-h-screen">
-          <nav className="p-4 space-y-2">
-            {menuItems.map((item) => {
-              const Icon = item.icon
-              const isActive = pathname === item.href
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    isActive 
-                      ? 'bg-blue-50 text-blue-700 border-l-4 border-blue-700' 
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                  }`}
-                >
-                  <Icon className="h-5 w-5" />
-                  <span>{item.label}</span>
-                </Link>
-              )
-            })}
-          </nav>
-        </aside>
-
-        {/* Main Content */}
-        <main className="flex-1 p-6">
-          <div className="max-w-4xl mx-auto">
-            {/* Feed Tab */}
-            {activeTab === 'feed' && (
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900 mb-6">Community Feed</h1>
-                
-                {/* Posts Feed */}
-                <div className="space-y-4">
-                  {data.posts.map((post) => (
-                    <Card key={post.id} className="hover:shadow-md transition-shadow">
-                      <CardHeader>
-                        <div className="flex items-center space-x-3">
-                          <Avatar>
-                            <AvatarFallback>
-                              {post.user.name.split(' ').map(n => n[0]).join('').toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="flex-1">
-                            <div className="flex items-center space-x-2">
-                              <p className="text-sm font-medium text-gray-900">
-                                {post.user.name}
-                              </p>
-                              <Badge variant={post.user.role === 'ADMIN' ? 'destructive' : 'secondary'}>
-                                {post.user.role}
-                              </Badge>
-                              {post.user.team && (
-                                <Badge variant="outline">
-                                  {post.user.team.name}
-                                </Badge>
-                              )}
-                            </div>
-                            <p className="text-xs text-gray-500">
-                              {new Date(post.createdAt).toLocaleDateString()}
-                            </p>
-                          </div>
-                        </div>
-                      </CardHeader>
-                      <CardContent>
-                        <p className="text-gray-700 mb-3">{post.content}</p>
-                        {post.imageURL && (
-                          <img 
-                            src={post.imageURL} 
-                            alt="Post image"
-                            className="w-full rounded-lg object-cover h-64"
-                          />
-                        )}
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Events Sidebar */}
-          <div className="w-80 ml-6">
+    <div>
+      <StudentNav 
+        studentName={data.student.name}
+        studentId={data.student.studentID}
+        teamName={data.student.team?.name}
+        onLogout={handleLogout}
+      />
+      
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid lg:grid-cols-3 gap-8">
+          {/* Feed Section */}
+          <div className="lg:col-span-2">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <Calendar className="h-5 w-5 text-blue-600" />
-                  <span>Upcoming Events</span>
+                  <span>Community Feed</span>
                 </CardTitle>
-                <CardDescription>Don't miss these events</CardDescription>
+                <CardDescription>Latest updates from your sports community</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4 max-h-96 overflow-y-auto">
-                  {data.events.map((event) => (
-                    <div key={event.id} className="border-l-4 border-blue-500 pl-4">
-                      <h4 className="font-medium text-gray-900">{event.title}</h4>
-                      <div className="flex items-center space-x-2 text-sm text-gray-600 mt-1">
-                        <Clock className="h-4 w-4" />
-                        <span>{new Date(event.date).toLocaleDateString()}</span>
+                  {data.posts.length > 0 ? (
+                    data.posts.slice(0, 5).map((post) => (
+                      <div key={post.id} className="flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50">
+                        <Avatar>
+                          <AvatarFallback>
+                            {post.user.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center space-x-2">
+                            <p className="text-sm font-medium text-gray-900 truncate">
+                              {post.user.name}
+                            </p>
+                            <Badge variant={post.user.role === 'ADMIN' ? 'destructive' : 'secondary'}>
+                              {post.user.role}
+                            </Badge>
+                            {post.user.team && (
+                              <Badge variant="outline">
+                                {post.user.team.name}
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                            {post.content}
+                          </p>
+                          <p className="text-xs text-gray-500 mt-1">
+                            {new Date(post.createdAt).toLocaleDateString()}
+                          </p>
+                        </div>
                       </div>
-                      <Badge variant="outline" className="mt-2">
-                        {event.sport}
-                      </Badge>
+                    ))
+                  ) : (
+                    <div className="text-center py-8 text-gray-500">
+                      <p>No posts yet. Be the first to share something!</p>
                     </div>
-                  ))}
+                  )}
                 </div>
+                {data.posts.length > 5 && (
+                  <div className="text-center pt-4">
+                    <Link href="/student/feed">
+                      <Badge variant="outline" className="cursor-pointer hover:bg-gray-100">
+                        View All Posts ({data.posts.length})
+                      </Badge>
+                    </Link>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
-        </main>
+
+          {/* Right Sidebar */}
+          <div className="space-y-6">
+            {/* Team Status */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Users className="h-5 w-5 text-green-600" />
+                  <span>Team Status</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {data.student.team ? (
+                  <div className="space-y-3">
+                    <div className="text-center">
+                      <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-2">
+                        <span className="text-green-800 font-bold text-xl">
+                          {data.student.team.name.charAt(0)}
+                        </span>
+                      </div>
+                      <h3 className="font-semibold text-lg">{data.student.team.name}</h3>
+                      <Badge variant="outline" className="mb-2">
+                        {data.student.team.sport}
+                      </Badge>
+                    </div>
+                    <div className="text-sm text-gray-600">
+                      <p>🎉 Active member</p>
+                      <p>Team ID: {data.student.team.id}</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center py-4">
+                    <Users className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                    <h3 className="font-semibold text-lg mb-2">No Team Assigned</h3>
+                    <p className="text-sm text-gray-600 mb-4">
+                      You haven't been assigned to a team yet. Contact your sports administrator to get added to a team.
+                    </p>
+                    <Badge variant="outline" className="bg-yellow-100 text-yellow-800">
+                      Request Team Assignment
+                    </Badge>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Upcoming Events */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Clock className="h-5 w-5 text-orange-600" />
+                  <span>Next Event</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {data.events.length > 0 ? (
+                  <div className="space-y-3">
+                    {data.events.slice(0, 3).map((event) => (
+                      <div key={event.id} className="border-l-4 border-blue-500 pl-4">
+                        <h4 className="font-medium text-gray-900">{event.title}</h4>
+                        <div className="flex items-center space-x-2 text-sm text-gray-600 mt-1">
+                          <Clock className="h-4 w-4" />
+                          <span>{new Date(event.date).toLocaleDateString()}</span>
+                        </div>
+                        <Badge variant="outline" className="mt-2">
+                          {event.sport}
+                        </Badge>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-4">
+                    <Clock className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                    <p className="text-sm text-gray-600">No upcoming events</p>
+                  </div>
+                )}
+                {data.events.length > 3 && (
+                  <div className="text-center pt-4">
+                    <Link href="/student/upcoming-events">
+                      <Badge variant="outline" className="cursor-pointer hover:bg-gray-100">
+                        View All Events ({data.events.length})
+                      </Badge>
+                    </Link>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Quick Actions */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Quick Actions</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <Link href="/student/create-post">
+                  <Button className="w-full justify-start" variant="outline">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Create Post
+                  </Button>
+                </Link>
+                <Link href="/student/feed">
+                  <Button className="w-full justify-start" variant="outline">
+                    <Calendar className="h-4 w-4 mr-2" />
+                    View Feed
+                  </Button>
+                </Link>
+                {data.student.team && (
+                  <Link href="/student/my-team">
+                    <Button className="w-full justify-start" variant="outline">
+                      <Users className="h-4 w-4 mr-2" />
+                      Team Details
+                    </Button>
+                  </Link>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </div>
     </div>
   )

@@ -3,10 +3,10 @@ import type { NextRequest } from 'next/server'
 import { verifyToken } from '@/lib/auth'
 
 // Routes that don't require authentication
-const publicRoutes = ['/login', '/signup', '/']
+const publicRoutes = ['/login', '/signup', '/', '/api/auth/login', '/api/auth/signup']
 
 // Routes that require authentication
-const protectedRoutes = ['/dashboard', '/student', '/admin']
+const protectedRoutes = ['/dashboard', '/student', '/admin', '/api/admin', '/api/student']
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
@@ -52,11 +52,11 @@ export const config = {
   matcher: [
     /*
      * Match all request paths except for the ones starting with:
-     * - api (API routes)
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
+     * - public (public files)
      */
-    '/((?!api|_next/static|_next/image|favicon.ico).*)',
+    '/((?!_next/static|_next/image|favicon.ico|public).*)',
   ],
 }

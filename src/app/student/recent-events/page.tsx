@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Calendar, MapPin, Clock, Users, Trophy } from 'lucide-react'
 import Link from 'next/link'
@@ -160,7 +161,7 @@ export default function RecentEvents() {
               <Card key={event.id} className={`hover:shadow-lg transition-shadow ${isToday ? 'ring-2 ring-blue-500' : ''}`}>
                 <CardHeader>
                   <div className="flex justify-between items-start">
-                    <div>
+                    <div className="flex-1">
                       <CardTitle className="text-xl">{event.title}</CardTitle>
                       <div className="flex items-center space-x-2 mt-2">
                         <Badge className={getSportColor(event.sport)}>
@@ -183,8 +184,7 @@ export default function RecentEvents() {
                       {event.location || 'NUML Sports Complex'}
                     </span>
                   </div>
-                </div>
-              </CardHeader>
+                </CardHeader>
               <CardContent>
                 <p className="text-gray-700 mb-4">{event.description}</p>
                 

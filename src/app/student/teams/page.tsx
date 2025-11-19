@@ -303,8 +303,7 @@ export default function StudentTeams() {
                     No members yet. Be the first to join!
                   </p>
                 )}
-              </div>
-            </CardContent>
+              </CardContent>
           </Card>
         ))}
         </div>

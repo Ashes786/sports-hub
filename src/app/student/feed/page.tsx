@@ -19,7 +19,8 @@ import {
   MessageCircle,
   Share,
   MoreHorizontal,
-  Calendar
+  Calendar,
+  Users
 } from 'lucide-react'
 import Link from 'next/link'
 

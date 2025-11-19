@@ -1,22 +1,34 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { verifyToken } from '@/lib/auth'
 
 export async function GET(request: NextRequest) {
   try {
-    // Get user info from headers (set by middleware)
-    const userId = request.headers.get('x-user-id')
-    const userRole = request.headers.get('x-user-role')
+    // Get token from Authorization header or cookies
+    const authHeader = request.headers.get('Authorization')
+    const token = authHeader?.replace('Bearer ', '') || 
+                  request.cookies.get('token')?.value
 
-    if (!userId || !userRole) {
+    if (!token) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { error: 'Unauthorized - No token' },
+        { status: 401 }
+      )
+    }
+
+    // Verify token
+    const decoded = verifyToken(token)
+
+    if (!decoded) {
+      return NextResponse.json(
+        { error: 'Unauthorized - Invalid token' },
         { status: 401 }
       )
     }
 
     // Get student data
     const student = await db.user.findUnique({
-      where: { id: userId },
+      where: { id: decoded.userId },
       include: {
         team: {
           select: {
@@ -79,7 +91,7 @@ export async function GET(request: NextRequest) {
       teamMembers = await db.user.findMany({
         where: {
           teamID: student.team.id,
-          id: { not: userId } // Exclude current user
+          id: { not: decoded.userId } // Exclude current user
         },
         select: {
           name: true,

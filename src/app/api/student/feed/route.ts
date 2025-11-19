@@ -1,15 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { verifyToken } from '@/lib/auth'
 
 // GET all posts for feed
 export async function GET(request: NextRequest) {
   try {
-    const userRole = request.headers.get('x-user-role')
-    const userId = request.headers.get('x-user-id')
-    
-    if (!userId || !userRole) {
+    // Get token from Authorization header or cookies
+    const authHeader = request.headers.get('Authorization')
+    const token = authHeader?.replace('Bearer ', '') || 
+                  request.cookies.get('token')?.value
+
+    if (!token) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { error: 'Unauthorized - No token' },
+        { status: 401 }
+      )
+    }
+
+    // Verify token
+    const decoded = verifyToken(token)
+
+    if (!decoded) {
+      return NextResponse.json(
+        { error: 'Unauthorized - Invalid token' },
         { status: 401 }
       )
     }
@@ -46,12 +59,24 @@ export async function GET(request: NextRequest) {
 // POST create post
 export async function POST(request: NextRequest) {
   try {
-    const userRole = request.headers.get('x-user-role')
-    const userId = request.headers.get('x-user-id')
-    
-    if (!userId || !userRole) {
+    // Get token from Authorization header or cookies
+    const authHeader = request.headers.get('Authorization')
+    const token = authHeader?.replace('Bearer ', '') || 
+                  request.cookies.get('token')?.value
+
+    if (!token) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { error: 'Unauthorized - No token' },
+        { status: 401 }
+      )
+    }
+
+    // Verify token
+    const decoded = verifyToken(token)
+
+    if (!decoded) {
+      return NextResponse.json(
+        { error: 'Unauthorized - Invalid token' },
         { status: 401 }
       )
     }
@@ -69,7 +94,7 @@ export async function POST(request: NextRequest) {
       data: {
         content,
         imageURL,
-        userID: userId
+        userID: decoded.userId
       },
       include: {
         user: {
@@ -95,12 +120,24 @@ export async function POST(request: NextRequest) {
 // PUT update post
 export async function PUT(request: NextRequest) {
   try {
-    const userRole = request.headers.get('x-user-role')
-    const userId = request.headers.get('x-user-id')
-    
-    if (!userId || !userRole) {
+    // Get token from Authorization header or cookies
+    const authHeader = request.headers.get('Authorization')
+    const token = authHeader?.replace('Bearer ', '') || 
+                  request.cookies.get('token')?.value
+
+    if (!token) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { error: 'Unauthorized - No token' },
+        { status: 401 }
+      )
+    }
+
+    // Verify token
+    const decoded = verifyToken(token)
+
+    if (!decoded) {
+      return NextResponse.json(
+        { error: 'Unauthorized - Invalid token' },
         { status: 401 }
       )
     }
@@ -119,7 +156,7 @@ export async function PUT(request: NextRequest) {
       where: { id }
     })
 
-    if (!existingPost || existingPost.userID !== userId) {
+    if (!existingPost || existingPost.userID !== decoded.userId) {
       return NextResponse.json(
         { error: 'Post not found or access denied' },
         { status: 403 }
@@ -147,12 +184,24 @@ export async function PUT(request: NextRequest) {
 // DELETE post
 export async function DELETE(request: NextRequest) {
   try {
-    const userRole = request.headers.get('x-user-role')
-    const userId = request.headers.get('x-user-id')
-    
-    if (!userId || !userRole) {
+    // Get token from Authorization header or cookies
+    const authHeader = request.headers.get('Authorization')
+    const token = authHeader?.replace('Bearer ', '') || 
+                  request.cookies.get('token')?.value
+
+    if (!token) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { error: 'Unauthorized - No token' },
+        { status: 401 }
+      )
+    }
+
+    // Verify token
+    const decoded = verifyToken(token)
+
+    if (!decoded) {
+      return NextResponse.json(
+        { error: 'Unauthorized - Invalid token' },
         { status: 401 }
       )
     }
@@ -172,7 +221,7 @@ export async function DELETE(request: NextRequest) {
       where: { id }
     })
 
-    if (!existingPost || existingPost.userID !== userId) {
+    if (!existingPost || existingPost.userID !== decoded.userId) {
       return NextResponse.json(
         { error: 'Post not found or access denied' },
         { status: 403 }

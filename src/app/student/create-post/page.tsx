@@ -162,16 +162,15 @@ export default function CreatePost() {
                     {isSubmitting ? (
                       <>
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                          Posting...
-                        </>
-                      ) : (
-                        <>
-                          <Save className="h-4 w-4 mr-2" />
-                          Publish Post
-                        </>
-                      )}
-                    </Button>
-                  </div>
+                        Posting...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="h-4 w-4 mr-2" />
+                        Publish Post
+                      </>
+                    )}
+                  </Button>
                 </div>
               </form>
             </CardContent>

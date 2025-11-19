@@ -1,15 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { verifyToken } from '@/lib/auth'
 
 // GET all events with participation status
 export async function GET(request: NextRequest) {
   try {
-    const userRole = request.headers.get('x-user-role')
-    const userId = request.headers.get('x-user-id')
-    
-    if (!userId || !userRole) {
+    // Get token from Authorization header or cookies
+    const authHeader = request.headers.get('Authorization')
+    const token = authHeader?.replace('Bearer ', '') || 
+                  request.cookies.get('token')?.value
+
+    if (!token) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { error: 'Unauthorized - No token' },
+        { status: 401 }
+      )
+    }
+
+    // Verify token
+    const decoded = verifyToken(token)
+
+    if (!decoded) {
+      return NextResponse.json(
+        { error: 'Unauthorized - Invalid token' },
         { status: 401 }
       )
     }
@@ -29,7 +42,7 @@ export async function GET(request: NextRequest) {
         },
         participants: {
           where: {
-            userId: userId
+            userId: decoded.userId
           },
           select: {
             id: true,
@@ -52,12 +65,24 @@ export async function GET(request: NextRequest) {
 // POST participate in event
 export async function POST(request: NextRequest) {
   try {
-    const userRole = request.headers.get('x-user-role')
-    const userId = request.headers.get('x-user-id')
-    
-    if (!userId || !userRole) {
+    // Get token from Authorization header or cookies
+    const authHeader = request.headers.get('Authorization')
+    const token = authHeader?.replace('Bearer ', '') || 
+                  request.cookies.get('token')?.value
+
+    if (!token) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { error: 'Unauthorized - No token' },
+        { status: 401 }
+      )
+    }
+
+    // Verify token
+    const decoded = verifyToken(token)
+
+    if (!decoded) {
+      return NextResponse.json(
+        { error: 'Unauthorized - Invalid token' },
         { status: 401 }
       )
     }
@@ -88,7 +113,7 @@ export async function POST(request: NextRequest) {
       where: {
         eventId_userId: {
           eventId,
-          userId
+          userId: decoded.userId
         }
       }
     })
@@ -104,7 +129,7 @@ export async function POST(request: NextRequest) {
     const participation = await db.eventParticipant.create({
       data: {
         eventId,
-        userId
+        userId: decoded.userId
       }
     })
 
@@ -121,12 +146,24 @@ export async function POST(request: NextRequest) {
 // DELETE withdraw from event
 export async function DELETE(request: NextRequest) {
   try {
-    const userRole = request.headers.get('x-user-role')
-    const userId = request.headers.get('x-user-id')
-    
-    if (!userId || !userRole) {
+    // Get token from Authorization header or cookies
+    const authHeader = request.headers.get('Authorization')
+    const token = authHeader?.replace('Bearer ', '') || 
+                  request.cookies.get('token')?.value
+
+    if (!token) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { error: 'Unauthorized - No token' },
+        { status: 401 }
+      )
+    }
+
+    // Verify token
+    const decoded = verifyToken(token)
+
+    if (!decoded) {
+      return NextResponse.json(
+        { error: 'Unauthorized - Invalid token' },
         { status: 401 }
       )
     }
@@ -144,7 +181,7 @@ export async function DELETE(request: NextRequest) {
     await db.eventParticipant.deleteMany({
       where: {
         eventId,
-        userId
+        userId: decoded.userId
       }
     })
 

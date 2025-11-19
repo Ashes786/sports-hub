@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Trophy, Medal, Star, Target, Award } from 'lucide-react'
 import Link from 'next/link'
@@ -263,7 +264,6 @@ export default function Achievements() {
                       <p className="text-xs text-gray-500">
                         {new Date(achievement.date).toLocaleDateString()}
                       </p>
-                      </div>
                       <div className="flex items-center space-x-2">
                         <img 
                           src={`/achievement${(index % 3) + 1}.jpeg`}
@@ -273,7 +273,6 @@ export default function Achievements() {
                       </div>
                     </div>
                   </div>
-                </div>
                 </div>
               ))}
             </div>

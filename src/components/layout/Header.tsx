@@ -14,7 +14,7 @@ export default function Header({ currentPage }: HeaderProps) {
         <div className="flex items-center justify-between h-16">
           <Link href="/" className="flex items-center space-x-3">
             <img
-              src="/numl-logo-official.jpeg"
+              src="/numl-logo-official.png"
               alt="NUML Logo"
               className="w-10 h-10 object-contain rounded-full"
             />

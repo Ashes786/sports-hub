@@ -4,9 +4,9 @@ import { hashPassword, generateToken } from '@/lib/auth'
 
 export async function POST(request: NextRequest) {
   try {
-    const { name, email, password, studentID } = await request.json()
+    const { name, email, password, studentID, department } = await request.json()
 
-    if (!name || !email || !password || !studentID) {
+    if (!name || !email || !password || !studentID || !department) {
       return NextResponse.json(
         { error: 'All required fields must be provided' },
         { status: 400 }
@@ -49,7 +49,8 @@ export async function POST(request: NextRequest) {
         email,
         password: hashedPassword,
         role: 'STUDENT', // Always STUDENT
-        studentID: studentID
+        studentID: studentID,
+        department: department
       }
     })
 

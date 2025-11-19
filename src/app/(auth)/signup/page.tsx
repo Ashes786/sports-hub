@@ -18,7 +18,8 @@ export default function SignupPage() {
     password: '',
     confirmPassword: '',
     role: 'STUDENT', // Fixed to STUDENT only
-    studentID: ''
+    studentID: '',
+    department: '' // Added department field
   })
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
@@ -60,15 +61,15 @@ export default function SignupPage() {
         throw new Error(data.error || 'Signup failed')
       }
 
-      // Store token in localStorage
-      localStorage.setItem('token', data.token)
+      // Store token in cookie
+      document.cookie = `token=${data.token}; path=/; max-age=${7 * 24 * 60 * 60}` // 7 days
       localStorage.setItem('user', JSON.stringify(data.user))
 
       // Redirect based on role
       if (data.user.role === 'ADMIN') {
-        router.push('/dashboard')
+        router.push('/admin/dashboard')
       } else {
-        router.push('/dashboard')
+        router.push('/student/dashboard')
       }
     } catch (err: any) {
       setError(err.message)
@@ -104,7 +105,7 @@ export default function SignupPage() {
           <div className="text-center mb-8">
             <div className="mb-4">
               <img
-                src="/numl-logo-official.jpeg"
+                src="/numl-logo-official.png"
                 alt="NUML Logo"
                 className="w-32 h-32 mx-auto object-contain rounded-full"
               />
@@ -162,6 +163,28 @@ export default function SignupPage() {
                     onChange={(e) => handleChange('studentID', e.target.value)}
                     required
                   />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="department">Department</Label>
+                  <Select value={formData.department} onValueChange={(value) => handleChange('department', value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select your department" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="BS English">BS English</SelectItem>
+                      <SelectItem value="BS Computer Science">BS Computer Science</SelectItem>
+                      <SelectItem value="BS Mathematics">BS Mathematics</SelectItem>
+                      <SelectItem value="BS Physics">BS Physics</SelectItem>
+                      <SelectItem value="BS Chemistry">BS Chemistry</SelectItem>
+                      <SelectItem value="BS Biology">BS Biology</SelectItem>
+                      <SelectItem value="BS Business Administration">BS Business Administration</SelectItem>
+                      <SelectItem value="BS Economics">BS Economics</SelectItem>
+                      <SelectItem value="BS Psychology">BS Psychology</SelectItem>
+                      <SelectItem value="BS Sociology">BS Sociology</SelectItem>
+                      <SelectItem value="BS Mass Communication">BS Mass Communication</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="space-y-2">

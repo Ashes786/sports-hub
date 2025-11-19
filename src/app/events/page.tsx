@@ -19,7 +19,7 @@ export default function EventsPage() {
           <div className="text-center">
             <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-white p-2 shadow-lg">
               <img
-                src="/numl-logo-official.jpeg"
+                src="/numl-logo-official.png"
                 alt="NUML Logo"
                 className="w-full h-full object-contain rounded-full"
               />
@@ -47,7 +47,7 @@ export default function EventsPage() {
                 <div className="md:w-1/3">
                   <div className="h-64 md:h-full relative">
                     <img
-                      src="/WhatsApp%20Image%202025-11-18%20at%203.54.36%20PM.jpeg"
+                      src="/achievement1.jpeg"
                       alt="All Pakistan Volleyball Championship"
                       className="w-full h-full object-cover"
                     />
@@ -94,7 +94,7 @@ export default function EventsPage() {
                 <div className="md:w-1/3">
                   <div className="h-64 md:h-full relative">
                     <img
-                      src="/WhatsApp%20Image%202025-11-18%20at%203.54.15%20PM.jpeg"
+                      src="/achievement2.jpeg"
                       alt="Inter Var Volleyball Champions Celebration"
                       className="w-full h-full object-cover"
                     />
@@ -143,7 +143,7 @@ export default function EventsPage() {
                 <div className="md:w-1/3">
                   <div className="h-64 md:h-full relative">
                     <img
-                      src="/WhatsApp%20Image%202025-11-18%20at%203.55.05%20PM.jpeg"
+                      src="/achievement3.jpeg"
                       alt="NUML Football Championship"
                       className="w-full h-full object-cover"
                     />

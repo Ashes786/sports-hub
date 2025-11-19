@@ -137,7 +137,7 @@ export default function Achievements() {
             <div className="flex items-center space-x-3">
               <Link href="/student/dashboard" className="flex items-center space-x-3">
                 <img
-                  src="/numl-logo-official.jpeg"
+                  src="/numl-logo-official.png"
                   alt="NUML Logo"
                   className="w-8 h-8 object-contain rounded-full"
                 />
@@ -266,7 +266,7 @@ export default function Achievements() {
                       </div>
                       <div className="flex items-center space-x-2">
                         <img 
-                          src={`/achievement-${achievement.id}.jpg`}
+                          src={`/achievement${(index % 3) + 1}.jpeg`}
                           alt={achievement.title}
                           className="w-20 h-20 rounded-lg object-cover border-2 border-gray-200"
                         />

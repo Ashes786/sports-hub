@@ -120,7 +120,8 @@ export default function StudentDashboard() {
   }
 
   const handleLogout = () => {
-    localStorage.removeItem('token')
+    // Clear token cookie and user data
+    document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT'
     localStorage.removeItem('user')
     router.push('/')
   }
@@ -145,7 +146,7 @@ export default function StudentDashboard() {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <img
-                src="/numl-logo-official.jpeg"
+                src="/numl-logo-official.png"
                 alt="NUML Logo"
                 className="w-8 h-8 object-contain rounded-full"
               />

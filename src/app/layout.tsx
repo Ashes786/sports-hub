@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   keywords: ["Next.js", "TypeScript", "Tailwind CSS", "shadcn/ui", "AI development", "React"],
   authors: [{ name: "Z.ai Team" }],
   icons: {
-    icon: "/public/logo.svg",
+    icon: "/logo.svg",
   },
   openGraph: {
     title: "NUML Sports Hub",

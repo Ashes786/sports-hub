@@ -17,6 +17,7 @@ interface Team {
   id: string
   name: string
   sport: string
+  department: string
   createdAt: string
   creator: {
     name: string
@@ -27,6 +28,7 @@ interface Team {
     name: string
     email: string
     studentID: string
+    department: string
   }>
   _count: {
     members: number
@@ -45,6 +47,12 @@ const sports = [
   'Volleyball', 'Hockey', 'Swimming', 'Athletics', 'Table Tennis'
 ]
 
+const departments = [
+  'BS English', 'BS Computer Science', 'BS Mathematics', 'BS Physics',
+  'BS Chemistry', 'BS Biology', 'BS Business Administration', 'BS Economics',
+  'BS Psychology', 'BS Sociology', 'BS Mass Communication'
+]
+
 export default function AdminTeams() {
   const [teams, setTeams] = useState<Team[]>([])
   const [users, setUsers] = useState<User[]>([])
@@ -54,6 +62,7 @@ export default function AdminTeams() {
   const [formData, setFormData] = useState({
     name: '',
     sport: '',
+    department: '',
     captainId: ''
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -172,7 +181,7 @@ export default function AdminTeams() {
   }
 
   const resetForm = () => {
-    setFormData({ name: '', sport: '', captainId: '' })
+    setFormData({ name: '', sport: '', department: '', captainId: '' })
     setEditingTeam(null)
     setShowCreateForm(false)
   }
@@ -207,7 +216,7 @@ export default function AdminTeams() {
             <div className="flex items-center space-x-3">
               <Link href="/admin/dashboard" className="flex items-center space-x-3">
                 <img
-                  src="/numl-logo-official.jpeg"
+                  src="/numl-logo-official.png"
                   alt="NUML Logo"
                   className="w-8 h-8 object-contain rounded-full"
                 />
@@ -252,7 +261,7 @@ export default function AdminTeams() {
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="grid md:grid-cols-2 gap-4">
+                  <div className="grid md:grid-cols-3 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="name">Team Name *</Label>
                       <Input
@@ -273,6 +282,21 @@ export default function AdminTeams() {
                           {sports.map((sport) => (
                             <SelectItem key={sport} value={sport}>
                               {sport}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="department">Department *</Label>
+                      <Select value={formData.department} onValueChange={(value) => setFormData({ ...formData, department: value })}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select department" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {departments.map((dept) => (
+                            <SelectItem key={dept} value={dept}>
+                              {dept}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -331,6 +355,7 @@ export default function AdminTeams() {
                 <TableRow>
                   <TableHead>Team Name</TableHead>
                   <TableHead>Sport</TableHead>
+                  <TableHead>Department</TableHead>
                   <TableHead>Members</TableHead>
                   <TableHead>Created By</TableHead>
                   <TableHead>Actions</TableHead>
@@ -342,6 +367,9 @@ export default function AdminTeams() {
                     <TableCell className="font-medium">{team.name}</TableCell>
                     <TableCell>
                       <Badge variant="secondary">{team.sport}</Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline">{team.department}</Badge>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center space-x-2">
@@ -360,6 +388,7 @@ export default function AdminTeams() {
                             setFormData({
                               name: team.name,
                               sport: team.sport,
+                              department: team.department,
                               captainId: team.members.find(m => m.teamID === team.id)?.id || ''
                             })
                             setShowCreateForm(true)
@@ -404,6 +433,7 @@ export default function AdminTeams() {
                               <div className="flex-1 min-w-0">
                                 <p className="text-sm font-medium">{member.name}</p>
                                 <p className="text-xs text-gray-500">ID: {member.studentID}</p>
+                                <p className="text-xs text-gray-400">{member.department}</p>
                               </div>
                               {team.members.find(m => m.id === member.id)?.teamID === team.id && (
                                 <Crown className="h-4 w-4 text-yellow-500" />

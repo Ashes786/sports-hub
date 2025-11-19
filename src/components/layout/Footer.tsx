@@ -8,7 +8,7 @@ export default function Footer() {
           <div>
             <div className="flex items-center space-x-3 mb-4">
               <img
-                src="/numl-logo-official.jpeg"
+                src="/numl-logo-official.png"
                 alt="NUML Logo"
                 className="w-10 h-10 object-contain rounded-full"
               />

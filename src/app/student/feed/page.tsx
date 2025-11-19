@@ -188,7 +188,7 @@ export default function StudentFeed() {
             <div className="flex items-center space-x-3">
               <Link href="/student/dashboard" className="flex items-center space-x-3">
                 <img
-                  src="/numl-logo-official.jpeg"
+                  src="/numl-logo-official.png"
                   alt="NUML Logo"
                   className="w-8 h-8 object-contain rounded-full"
                 />

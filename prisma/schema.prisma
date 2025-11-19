@@ -20,6 +20,7 @@ model User {
   name      String
   role      Role     @default(STUDENT)
   studentID String?  @unique
+  department String?  // BS English, BS Computer Science, etc.
   teamID    String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -38,6 +39,7 @@ model Team {
   id        String   @id @default(cuid())
   name      String
   sport     String
+  department String   // All team members from same department
   createdBy String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -45,6 +47,8 @@ model Team {
   // Relations
   creator User   @relation("TeamCreator", fields: [createdBy], references: [id])
   members User[] @relation("UserTeam")
+  matchesAsTeamA Event[] @relation("MatchTeamA")
+  matchesAsTeamB Event[] @relation("MatchTeamB")
 
   @@map("teams")
 }
@@ -55,6 +59,13 @@ model Event {
   description String?
   date        DateTime
   sport       String
+  type        EventType @default(TOURNAMENT)  // TOURNAMENT, MATCH, PRACTICE
+  location    String?  // Venue/location
+  teamAID     String?  // First team (for matches)
+  teamBID     String?  // Second team (for matches)
+  scoreA       Int?     // Team A score (for matches)
+  scoreB       Int?     // Team B score (for matches)
+  status      EventStatus @default(UPCOMING)  // UPCOMING, ONGOING, COMPLETED, CANCELLED
   createdBy   String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -62,6 +73,8 @@ model Event {
   // Relations
   creator User @relation(fields: [createdBy], references: [id])
   participants EventParticipant[]
+  teamA Team? @relation("MatchTeamA", fields: [teamAID], references: [id])
+  teamB Team? @relation("MatchTeamB", fields: [teamBID], references: [id])
 
   @@map("events")
 }
@@ -97,4 +110,17 @@ model Post {
 enum Role {
   STUDENT
   ADMIN
+}
+
+enum EventType {
+  TOURNAMENT
+  MATCH
+  PRACTICE
+}
+
+enum EventStatus {
+  UPCOMING
+  ONGOING
+  COMPLETED
+  CANCELLED
 }

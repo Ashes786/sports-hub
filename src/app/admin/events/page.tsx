@@ -19,9 +19,24 @@ interface Event {
   description?: string
   sport: string
   date: string
+  type?: string
+  location?: string
+  teamAID?: string
+  teamBID?: string
+  status?: string
+  scoreA?: number
+  scoreB?: number
   creator: {
     name: string
     email: string
+  }
+  teamA?: {
+    id: string
+    name: string
+  }
+  teamB?: {
+    id: string
+    name: string
   }
 }
 
@@ -30,8 +45,22 @@ const sports = [
   'Volleyball', 'Hockey', 'Swimming', 'Athletics', 'Table Tennis'
 ]
 
+const eventTypes = [
+  { value: 'TOURNAMENT', label: 'Tournament' },
+  { value: 'MATCH', label: 'Match' },
+  { value: 'PRACTICE', label: 'Practice' }
+]
+
+const eventStatuses = [
+  { value: 'UPCOMING', label: 'Upcoming' },
+  { value: 'ONGOING', label: 'Ongoing' },
+  { value: 'COMPLETED', label: 'Completed' },
+  { value: 'CANCELLED', label: 'Cancelled' }
+]
+
 export default function AdminEvents() {
   const [events, setEvents] = useState<Event[]>([])
+  const [teams, setTeams] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [editingEvent, setEditingEvent] = useState<Event | null>(null)
@@ -39,13 +68,21 @@ export default function AdminEvents() {
     title: '',
     description: '',
     sport: '',
-    date: ''
+    date: '',
+    type: 'TOURNAMENT',
+    location: '',
+    teamAID: '',
+    teamBID: '',
+    status: 'UPCOMING',
+    scoreA: '',
+    scoreB: ''
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
     fetchEvents()
+    fetchTeams()
   }, [])
 
   const fetchEvents = async () => {
@@ -117,7 +154,14 @@ export default function AdminEvents() {
       title: event.title,
       description: event.description || '',
       sport: event.sport,
-      date: new Date(event.date).toISOString().split('T')[0]
+      date: new Date(event.date).toISOString().split('T')[0],
+      type: event.type || 'TOURNAMENT',
+      location: event.location || '',
+      teamAID: event.teamAID || '',
+      teamBID: event.teamBID || '',
+      status: event.status || 'UPCOMING',
+      scoreA: event.scoreA?.toString() || '',
+      scoreB: event.scoreB?.toString() || ''
     })
     setShowCreateForm(true)
   }
@@ -148,8 +192,38 @@ export default function AdminEvents() {
     }
   }
 
+  const fetchTeams = async () => {
+    try {
+      const token = localStorage.getItem('token')
+      const response = await fetch('/api/admin/teams', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setTeams(data)
+      }
+    } catch (error) {
+      console.error('Error fetching teams:', error)
+    }
+  }
+
   const resetForm = () => {
-    setFormData({ title: '', description: '', sport: '', date: '' })
+    setFormData({ 
+      title: '', 
+      description: '', 
+      sport: '', 
+      date: '', 
+      type: 'TOURNAMENT',
+      location: '',
+      teamAID: '',
+      teamBID: '',
+      status: 'UPCOMING',
+      scoreA: '',
+      scoreB: ''
+    })
     setEditingEvent(null)
     setShowCreateForm(false)
   }
@@ -185,7 +259,7 @@ export default function AdminEvents() {
             <div className="flex items-center space-x-3">
               <Link href="/admin/dashboard" className="flex items-center space-x-3">
                 <img
-                  src="/numl-logo-official.jpeg"
+                  src="/numl-logo-official.png"
                   alt="NUML Logo"
                   className="w-8 h-8 object-contain rounded-full"
                 />
@@ -257,14 +331,40 @@ export default function AdminEvents() {
                       </Select>
                     </div>
                   </div>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="type">Event Type *</Label>
+                      <Select value={formData.type} onValueChange={(value) => setFormData({ ...formData, type: value })}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select event type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {eventTypes.map((type) => (
+                            <SelectItem key={type.value} value={type.value}>
+                              {type.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="date">Date *</Label>
+                      <Input
+                        id="date"
+                        type="date"
+                        value={formData.date}
+                        onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                        required
+                      />
+                    </div>
+                  </div>
                   <div className="space-y-2">
-                    <Label htmlFor="date">Date *</Label>
+                    <Label htmlFor="location">Location</Label>
                     <Input
-                      id="date"
-                      type="date"
-                      value={formData.date}
-                      onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                      required
+                      id="location"
+                      value={formData.location}
+                      onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                      placeholder="Enter event location"
                     />
                   </div>
                   <div className="space-y-2">
@@ -277,6 +377,84 @@ export default function AdminEvents() {
                       rows={4}
                     />
                   </div>
+                  
+                  {/* Match-specific fields */}
+                  {formData.type === 'MATCH' && (
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="teamAID">Team A *</Label>
+                        <Select value={formData.teamAID} onValueChange={(value) => setFormData({ ...formData, teamAID: value })}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select Team A" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {teams.map((team) => (
+                              <SelectItem key={team.id} value={team.id}>
+                                {team.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="teamBID">Team B *</Label>
+                        <Select value={formData.teamBID} onValueChange={(value) => setFormData({ ...formData, teamBID: value })}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select Team B" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {teams.map((team) => (
+                              <SelectItem key={team.id} value={team.id}>
+                                {team.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Score fields for completed matches */}
+                  {formData.type === 'MATCH' && (
+                    <div className="grid md:grid-cols-3 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="status">Status</Label>
+                        <Select value={formData.status} onValueChange={(value) => setFormData({ ...formData, status: value })}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select status" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {eventStatuses.map((status) => (
+                              <SelectItem key={status.value} value={status.value}>
+                                {status.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="scoreA">Team A Score</Label>
+                        <Input
+                          id="scoreA"
+                          type="number"
+                          value={formData.scoreA}
+                          onChange={(e) => setFormData({ ...formData, scoreA: e.target.value })}
+                          placeholder="0"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="scoreB">Team B Score</Label>
+                        <Input
+                          id="scoreB"
+                          type="number"
+                          value={formData.scoreB}
+                          onChange={(e) => setFormData({ ...formData, scoreB: e.target.value })}
+                          placeholder="0"
+                        />
+                      </div>
+                    </div>
+                  )}
+                  
                   <div className="flex justify-end space-x-2">
                     <Button type="button" variant="outline" onClick={resetForm}>
                       Cancel
@@ -312,8 +490,12 @@ export default function AdminEvents() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Title</TableHead>
+                  <TableHead>Type</TableHead>
                   <TableHead>Sport</TableHead>
                   <TableHead>Date</TableHead>
+                  <TableHead>Location</TableHead>
+                  <TableHead>Teams</TableHead>
+                  <TableHead>Status</TableHead>
                   <TableHead>Created By</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
@@ -323,9 +505,32 @@ export default function AdminEvents() {
                   <TableRow key={event.id}>
                     <TableCell className="font-medium">{event.title}</TableCell>
                     <TableCell>
+                      <Badge variant="outline">{event.type}</Badge>
+                    </TableCell>
+                    <TableCell>
                       <Badge variant="secondary">{event.sport}</Badge>
                     </TableCell>
                     <TableCell>{new Date(event.date).toLocaleDateString()}</TableCell>
+                    <TableCell>{event.location || '-'}</TableCell>
+                    <TableCell>
+                      {event.type === 'MATCH' ? (
+                        <div className="text-sm">
+                          {event.teamA?.name} vs {event.teamB?.name}
+                          {event.scoreA !== null && event.scoreB !== null && (
+                            <div className="font-semibold">
+                              ({event.scoreA} - {event.scoreB})
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        '-'
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={event.status === 'COMPLETED' ? 'default' : 'secondary'}>
+                        {event.status || 'UPCOMING'}
+                      </Badge>
+                    </TableCell>
                     <TableCell>{event.creator.name}</TableCell>
                     <TableCell>
                       <div className="flex space-x-2">

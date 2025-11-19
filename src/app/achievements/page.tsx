@@ -16,7 +16,7 @@ export default function AchievementsPage() {
         <div className="relative text-white overflow-hidden">
           <div className="absolute inset-0">
             <img
-              src="/public/achievement1.jpeg"
+              src="/achievement1.jpeg"
               alt="NUML Sports Team"
               className="w-full h-full object-cover"
             />
@@ -37,16 +37,16 @@ export default function AchievementsPage() {
               </p>
               <div className="flex justify-center gap-8 text-center">
                 <div>
-                  <div className="text-4xl font-bold text-yellow-300">15+</div>
-                  <div className="text-blue-100">Championships</div>
+                  <div className="text-4xl font-bold text-yellow-300">4+</div>
+                  <div className="text-blue-100">Sports Categories</div>
                 </div>
                 <div>
-                  <div className="text-4xl font-bold text-yellow-300">50+</div>
-                  <div className="text-blue-100">Medals Won</div>
+                  <div className="text-4xl font-bold text-yellow-300">10+</div>
+                  <div className="text-blue-100">HEC Championships</div>
                 </div>
                 <div>
-                  <div className="text-4xl font-bold text-yellow-300">100+</div>
-                  <div className="text-blue-100">Athletes</div>
+                  <div className="text-4xl font-bold text-yellow-300">National</div>
+                  <div className="text-blue-100">Team Selections</div>
                 </div>
               </div>
             </div>
@@ -58,64 +58,18 @@ export default function AchievementsPage() {
           {/* Featured Achievements */}
           <section className="mb-16">
             <div className="text-center mb-12">
-              <h2 className="text-4xl font-bold text-gray-900 mb-4">Championship Victories</h2>
-              <p className="text-xl text-gray-600">Recent triumphs that make us proud</p>
+              <h2 className="text-4xl font-bold text-gray-900 mb-4">NUML Championship Victories</h2>
+              <p className="text-xl text-gray-600">Excellence in Taekwondo, Table Tennis, Volleyball, and Badminton</p>
             </div>
 
             <div className="grid lg:grid-cols-2 gap-8 mb-12">
-              {/* Football Championship - Featured Large */}
+              {/* HEC Intervarsity Volleyball Championship - Featured Large */}
               <div className="relative group cursor-pointer">
                 <div className="relative overflow-hidden rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02]">
                   <div className="aspect-[4/3] relative">
                     <img
-                      src="./public/achievement2.jpeg"
-                      alt="Football Championship Team"
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
-                    <div className="absolute top-4 right-4">
-                      <Badge className="bg-yellow-500 text-white hover:bg-yellow-600 text-lg px-4 py-2">
-                        <Trophy className="w-5 h-5 mr-2" />
-                        Runner Up
-                      </Badge>
-                    </div>
-                    <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
-                          <Target className="w-6 h-6" />
-                        </div>
-                        <Badge className="bg-blue-600 text-white border-0">Football</Badge>
-                      </div>
-                      <h3 className="text-3xl font-bold mb-3">NUML Football Championship</h3>
-                      <p className="text-lg text-gray-200 mb-4">
-                        Outstanding performance securing runner-up position in the prestigious tournament
-                      </p>
-                      <div className="flex items-center gap-6 text-sm">
-                        <div className="flex items-center gap-2">
-                          <Calendar className="w-4 h-4" />
-                          <span>Recent</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Users className="w-4 h-4" />
-                          <span>Team Victory</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Award className="w-4 h-4" />
-                          <span>Rs. 10,000 Prize</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Volleyball Championship - Featured Large */}
-              <div className="relative group cursor-pointer">
-                <div className="relative overflow-hidden rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02]">
-                  <div className="aspect-[4/3] relative">
-                    <img
-                      src="/public/achievement3.jpeg"
-                      alt="Volleyball Champions Celebration"
+                      src="/achievement2.jpeg"
+                      alt="HEC Volleyball Championship Team"
                       className="w-full h-full object-cover"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
@@ -132,22 +86,68 @@ export default function AchievementsPage() {
                         </div>
                         <Badge className="bg-green-600 text-white border-0">Volleyball</Badge>
                       </div>
-                      <h3 className="text-3xl font-bold mb-3">Inter Var Volleyball Champions</h3>
+                      <h3 className="text-3xl font-bold mb-3">HEC Zone-E Champions</h3>
                       <p className="text-lg text-gray-200 mb-4">
-                        Victory celebration! Emerging as champions in the 2023-24 season
+                        Men's team wins HEC Intervarsity Volleyball Championship Zone-E for 2024-25 session
                       </p>
                       <div className="flex items-center gap-6 text-sm">
                         <div className="flex items-center gap-2">
                           <Calendar className="w-4 h-4" />
-                          <span>2023-24</span>
+                          <span>2024-25</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <Users className="w-4 h-4" />
-                          <span>Championship Title</span>
+                          <span>Zone-E Champions</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <Star className="w-4 h-4" />
-                          <span>Perfect Season</span>
+                          <span>HEC Championship</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* HEC Intervarsity Badminton Championship - Featured Large */}
+              <div className="relative group cursor-pointer">
+                <div className="relative overflow-hidden rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02]">
+                  <div className="aspect-[4/3] relative">
+                    <img
+                      src="/achievement3.jpeg"
+                      alt="HEC Badminton Championship Team"
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+                    <div className="absolute top-4 right-4">
+                      <Badge className="bg-green-500 text-white hover:bg-green-600 text-lg px-4 py-2">
+                        <Star className="w-5 h-5 mr-2" />
+                        Champions
+                      </Badge>
+                    </div>
+                    <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
+                          <Trophy className="w-6 h-6" />
+                        </div>
+                        <Badge className="bg-green-600 text-white border-0">Badminton</Badge>
+                      </div>
+                      <h3 className="text-3xl font-bold mb-3">HEC Zone-E Badminton Champions</h3>
+                      <p className="text-lg text-gray-200 mb-4">
+                        Victory celebration! Team wins HEC Zone-E Intervarsity Badminton Championship 2025
+                      </p>
+                      <div className="flex items-center gap-6 text-sm">
+                        <div className="flex items-center gap-2">
+                          <Calendar className="w-4 h-4" />
+                          <span>2025</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Users className="w-4 h-4" />
+                          <span>Zone-E Champions</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Star className="w-4 h-4" />
+                          <span>HEC Championship</span>
                         </div>
                       </div>
                     </div>
@@ -174,10 +174,9 @@ export default function AchievementsPage() {
                       <h3 className="text-3xl font-bold">All Pakistan Championship</h3>
                     </div>
                   </div>
-                  <h4 className="text-2xl font-bold mb-4">Inter University Volleyball 2023-24</h4>
+                  <h4 className="text-2xl font-bold mb-4">National Team Selection & Excellence</h4>
                   <p className="text-lg text-gray-200 mb-6">
-                    Representing NUML at the national level, our volleyball team showcased exceptional talent 
-                    and sportsmanship throughout the prestigious All Pakistan Inter University Championship.
+                    NUML students selected for national teams including Pakistan National Futsal Team and Pakistan Senior Hockey Team training camp, representing the university at the highest level of national sports.
                   </p>
                   <div className="grid grid-cols-3 gap-4 text-center">
                     <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4">
@@ -197,7 +196,7 @@ export default function AchievementsPage() {
                 <div className="md:w-1/2">
                   <div className="relative rounded-2xl overflow-hidden shadow-2xl">
                     <img
-                      src="/public/achievement3.jpeg"
+                      src="/achievement3.jpeg"
                       alt="All Pakistan Volleyball Championship Team"
                       className="w-full h-full object-cover"
                     />
@@ -211,8 +210,8 @@ export default function AchievementsPage() {
           {/* Achievement Categories */}
           <section className="mb-16">
             <div className="text-center mb-12">
-              <h2 className="text-4xl font-bold text-gray-900 mb-4">Categories of Excellence</h2>
-              <p className="text-xl text-gray-600">Diverse achievements across multiple disciplines</p>
+              <h2 className="text-4xl font-bold text-gray-900 mb-4">NUML Sports Excellence</h2>
+              <p className="text-xl text-gray-600">Achievements across Taekwondo, Table Tennis, Volleyball, and Badminton</p>
             </div>
 
             <div className="grid md:grid-cols-3 gap-8">
@@ -222,12 +221,12 @@ export default function AchievementsPage() {
                     <Trophy className="w-20 h-20 text-white" />
                   </div>
                   <div className="p-6">
-                    <h3 className="text-2xl font-bold mb-3">Gold Medal Winners</h3>
+                    <h3 className="text-2xl font-bold mb-3">HEC Championship Winners</h3>
                     <p className="text-gray-600 mb-4">
-                      Exceptional athletes securing gold medals at national inter-university championships across various sports disciplines.
+                      Exceptional performance in HEC Intervarsity Championships, securing top positions in Volleyball, Table Tennis, and Badminton events.
                     </p>
                     <div className="flex items-center justify-between">
-                      <Badge className="bg-yellow-100 text-yellow-800">12 Medals</Badge>
+                      <Badge className="bg-yellow-100 text-yellow-800">Zone-E Champions</Badge>
                       <span className="text-yellow-600 font-semibold">View All →</span>
                     </div>
                   </div>
@@ -240,12 +239,12 @@ export default function AchievementsPage() {
                     <Medal className="w-20 h-20 text-white" />
                   </div>
                   <div className="p-6">
-                    <h3 className="text-2xl font-bold mb-3">Sportsmanship Awards</h3>
+                    <h3 className="text-2xl font-bold mb-3">National Team Selections</h3>
                     <p className="text-gray-600 mb-4">
-                      Recognition for outstanding sportsmanship and fair play during inter-university competitions.
+                      NUML athletes selected for Pakistan National Futsal Team and Pakistan Senior Hockey Team training camps, representing at national level.
                     </p>
                     <div className="flex items-center justify-between">
-                      <Badge className="bg-blue-100 text-blue-800">8 Awards</Badge>
+                      <Badge className="bg-blue-100 text-blue-800">National Level</Badge>
                       <span className="text-blue-600 font-semibold">View All →</span>
                     </div>
                   </div>
@@ -258,12 +257,12 @@ export default function AchievementsPage() {
                     <Star className="w-20 h-20 text-white" />
                   </div>
                   <div className="p-6">
-                    <h3 className="text-2xl font-bold mb-3">Record Breakers</h3>
+                    <h3 className="text-2xl font-bold mb-3">Table Tennis Excellence</h3>
                     <p className="text-gray-600 mb-4">
-                      Individual athletes recognized for exceptional performance and breaking university records.
+                      Women's team achieved 3rd position in All Pakistan Intervarsity Championship 2025, while men's singles champion won Zone-E title.
                     </p>
                     <div className="flex items-center justify-between">
-                      <Badge className="bg-green-100 text-green-800">5 Records</Badge>
+                      <Badge className="bg-green-100 text-green-800">2025 Champions</Badge>
                       <span className="text-green-600 font-semibold">View All →</span>
                     </div>
                   </div>

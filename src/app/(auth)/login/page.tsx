@@ -37,15 +37,15 @@ export default function LoginPage() {
         throw new Error(data.error || 'Login failed')
       }
 
-      // Store token in localStorage
-      localStorage.setItem('token', data.token)
+      // Store token in cookie
+      document.cookie = `token=${data.token}; path=/; max-age=${7 * 24 * 60 * 60}` // 7 days
       localStorage.setItem('user', JSON.stringify(data.user))
 
       // Redirect based on role
       if (data.user.role === 'ADMIN') {
-        router.push('/dashboard')
+        router.push('/admin/dashboard')
       } else {
-        router.push('/dashboard')
+        router.push('/student/dashboard')
       }
     } catch (err: any) {
       setError(err.message)
@@ -81,7 +81,7 @@ export default function LoginPage() {
           <div className="text-center mb-8">
             <div className="mb-4">
               <img
-                src="/numl-logo-official.jpeg"
+                src="/numl-logo-official.png"
                 alt="NUML Logo"
                 className="w-32 h-32 mx-auto object-contain rounded-full"
               />

@@ -6,7 +6,7 @@ import { verifyToken } from '@/lib/auth'
 const publicRoutes = ['/login', '/signup', '/']
 
 // Routes that require authentication
-const protectedRoutes = ['/dashboard']
+const protectedRoutes = ['/dashboard', '/student', '/admin']
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl

@@ -26,7 +26,8 @@ export async function GET(request: NextRequest) {
             id: true,
             name: true,
             email: true,
-            studentID: true
+            studentID: true,
+            department: true
           }
         },
         _count: {
@@ -59,11 +60,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { name, sport, captainId } = await request.json()
+    const { name, sport, department, captainId } = await request.json()
 
-    if (!name || !sport) {
+    if (!name || !sport || !department) {
       return NextResponse.json(
-        { error: 'Team name and sport are required' },
+        { error: 'Team name, sport, and department are required' },
         { status: 400 }
       )
     }
@@ -72,6 +73,7 @@ export async function POST(request: NextRequest) {
       data: {
         name,
         sport,
+        department,
         createdBy: userId
       },
       include: {
@@ -114,7 +116,7 @@ export async function PUT(request: NextRequest) {
       )
     }
 
-    const { id, name, sport, captainId } = await request.json()
+    const { id, name, sport, department, captainId } = await request.json()
 
     if (!id) {
       return NextResponse.json(
@@ -127,7 +129,8 @@ export async function PUT(request: NextRequest) {
       where: { id },
       data: {
         name,
-        sport
+        sport,
+        department
       }
     })
 

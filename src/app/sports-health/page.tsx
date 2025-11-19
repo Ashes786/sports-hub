@@ -19,7 +19,7 @@ export default function SportsHealthPage() {
           <div className="text-center">
             <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-white p-2 shadow-lg">
               <img
-                src="/numl-logo-official.jpeg"
+                src="/numl-logo-official.png"
                 alt="NUML Logo"
                 className="w-full h-full object-contain rounded-full"
               />

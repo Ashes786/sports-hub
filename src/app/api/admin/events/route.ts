@@ -21,6 +21,18 @@ export async function GET(request: NextRequest) {
             name: true,
             email: true
           }
+        },
+        teamA: {
+          select: {
+            id: true,
+            name: true
+          }
+        },
+        teamB: {
+          select: {
+            id: true,
+            name: true
+          }
         }
       }
     })
@@ -48,11 +60,19 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { title, description, sport, date } = await request.json()
+    const { title, description, sport, date, type, location, teamAID, teamBID } = await request.json()
 
-    if (!title || !sport || !date) {
+    if (!title || !sport || !date || !type) {
       return NextResponse.json(
-        { error: 'Title, sport, and date are required' },
+        { error: 'Title, sport, date, and type are required' },
+        { status: 400 }
+      )
+    }
+
+    // For matches, both teams are required
+    if (type === 'MATCH' && (!teamAID || !teamBID)) {
+      return NextResponse.json(
+        { error: 'Both teams are required for matches' },
         { status: 400 }
       )
     }
@@ -63,6 +83,10 @@ export async function POST(request: NextRequest) {
         description,
         sport,
         date: new Date(date),
+        type,
+        location: location || null,
+        teamAID: teamAID || null,
+        teamBID: teamBID || null,
         createdBy: userId
       },
       include: {
@@ -97,11 +121,19 @@ export async function PUT(request: NextRequest) {
       )
     }
 
-    const { id, title, description, sport, date } = await request.json()
+    const { id, title, description, sport, date, type, location, teamAID, teamBID, status, scoreA, scoreB } = await request.json()
 
     if (!id) {
       return NextResponse.json(
         { error: 'Event ID is required' },
+        { status: 400 }
+      )
+    }
+
+    // For matches, both teams are required
+    if (type === 'MATCH' && (!teamAID || !teamBID)) {
+      return NextResponse.json(
+        { error: 'Both teams are required for matches' },
         { status: 400 }
       )
     }
@@ -112,7 +144,14 @@ export async function PUT(request: NextRequest) {
         title,
         description,
         sport,
-        date: date ? new Date(date) : undefined
+        date: date ? new Date(date) : undefined,
+        type,
+        location: location || null,
+        teamAID: teamAID || null,
+        teamBID: teamBID || null,
+        status: status || undefined,
+        scoreA: scoreA || null,
+        scoreB: scoreB || null
       }
     })
 

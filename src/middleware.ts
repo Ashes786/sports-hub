@@ -16,7 +16,7 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // Get token from Authorization header or localStorage (via cookies)
+  // Get token from Authorization header or cookies
   const token = request.cookies.get('token')?.value || 
                 request.headers.get('Authorization')?.replace('Bearer ', '')
 

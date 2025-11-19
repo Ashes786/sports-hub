@@ -71,8 +71,18 @@ function SidebarContent({
   const menuItems = userType === 'student' ? studentMenuItems : adminMenuItems
 
   const handleLogout = () => {
-    // Don't call onLogout here, just let the parent component handle it
-    // This prevents immediate logout when clicking navigation items
+    // Clear all authentication data immediately
+    document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT'
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
+    
+    // Call parent logout handler if provided
+    if (onLogout) {
+      onLogout()
+    }
+    
+    // Force redirect to prevent any race conditions
+    window.location.href = '/'
   }
 
   return (
@@ -156,12 +166,7 @@ function SidebarContent({
           className={`w-full justify-start group ${
             isCollapsed ? 'px-3' : 'px-3'
           }`}
-          onClick={() => {
-            document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT'
-            localStorage.removeItem('token')
-            localStorage.removeItem('user')
-            if (onLogout) onLogout()
-          }}
+          onClick={handleLogout}
         >
           <LogOut className="h-5 w-5 flex-shrink-0" />
           {!isCollapsed && <span className="ml-3">Logout</span>}

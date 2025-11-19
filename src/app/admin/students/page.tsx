@@ -49,6 +49,8 @@ export default function AdminStudents() {
         const tokenCookie = cookies.find(cookie => cookie.trim().startsWith('token='))
         if (tokenCookie) {
           token = tokenCookie.trim().split('=')[1]
+          // Sync back to localStorage
+          localStorage.setItem('token', token)
         }
       }
       
@@ -66,6 +68,12 @@ export default function AdminStudents() {
       if (response.ok) {
         const data = await response.json()
         setStudents(data.filter((user: any) => user.role === 'STUDENT'))
+      } else if (response.status === 401) {
+        // Token is invalid, clear and redirect
+        localStorage.removeItem('token')
+        localStorage.removeItem('user')
+        document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT'
+        router.push('/login')
       } else {
         router.push('/login')
       }

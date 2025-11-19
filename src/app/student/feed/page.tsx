@@ -377,6 +377,32 @@ export default function StudentFeed() {
               </CardHeader>
               <CardContent>
                 <p className="text-gray-700 mb-4">{post.content}</p>
+                {/* Add fallback images for posts without images */}
+                {!post.imageURL && (
+                  <>
+                    {posts.indexOf(post) === 0 && (
+                      <img 
+                        src="/basketball-post.jpg" 
+                        alt="Basketball game"
+                        className="w-full rounded-lg object-cover h-64 mb-4"
+                      />
+                    )}
+                    {posts.indexOf(post) === 1 && (
+                      <img 
+                        src="/victory-celebration.jpg" 
+                        alt="Victory celebration"
+                        className="w-full rounded-lg object-cover h-64 mb-4"
+                      />
+                    )}
+                    {posts.indexOf(post) === 2 && (
+                      <img 
+                        src="/soccer-match.jpg" 
+                        alt="Soccer match"
+                        className="w-full rounded-lg object-cover h-64 mb-4"
+                      />
+                    )}
+                  </>
+                )}
                 {post.imageURL && (
                   <img 
                     src={post.imageURL} 

@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { Trophy, Medal, Star, Target, Award } from 'lucide-react'
 import Link from 'next/link'
 
@@ -22,11 +23,45 @@ interface Achievement {
 export default function Achievements() {
   const [achievements, setAchievements] = useState<Achievement[]>([])
   const [loading, setLoading] = useState(true)
+  const [studentData, setStudentData] = useState<any>(null)
   const router = useRouter()
 
   useEffect(() => {
+    fetchStudentData()
     fetchAchievements()
   }, [])
+
+  const fetchStudentData = async () => {
+    try {
+      let token = localStorage.getItem('token')
+      
+      if (!token) {
+        const cookies = document.cookie.split(';')
+        const tokenCookie = cookies.find(cookie => cookie.trim().startsWith('token='))
+        if (tokenCookie) {
+          token = tokenCookie.trim().split('=')[1]
+        }
+      }
+      
+      if (!token) {
+        router.push('/login')
+        return
+      }
+
+      const response = await fetch('/api/student/dashboard', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setStudentData(data.student)
+      }
+    } catch (error) {
+      console.error('Error fetching student data:', error)
+    }
+  }
 
   const fetchAchievements = async () => {
     // Static achievements data - in real app this would come from API
@@ -121,6 +156,10 @@ export default function Achievements() {
     return iconMap[iconName as keyof typeof iconMap] || Trophy
   }
 
+  const handleLogout = () => {
+    router.push('/')
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -130,31 +169,14 @@ export default function Achievements() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="px-4 py-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <Link href="/student/dashboard" className="flex items-center space-x-3">
-                <img
-                  src="/numl-logo-official.png"
-                  alt="NUML Logo"
-                  className="w-8 h-8 object-contain rounded-full"
-                />
-                <span className="text-lg font-bold text-gray-900">NUML Sports Hub</span>
-              </Link>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Link href="/student/dashboard">
-                <Button variant="ghost" size="sm">Dashboard</Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <DashboardLayout
+      userType="student"
+      userName={studentData?.name}
+      studentId={studentData?.studentID}
+      teamName={studentData?.team?.name}
+      onLogout={handleLogout}
+    >
+      <div className="max-w-7xl mx-auto">
         {/* Hero Section */}
         <div className="relative bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-lg overflow-hidden mb-8">
           <div className="absolute inset-0 bg-black opacity-20"></div>
@@ -279,6 +301,6 @@ export default function Achievements() {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </DashboardLayout>
   )
 }

@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { Calendar, Users, Trophy, Plus, Crown } from 'lucide-react'
 import Link from 'next/link'
 
@@ -27,11 +28,45 @@ interface Event {
 export default function StudentEvents() {
   const [events, setEvents] = useState<Event[]>([])
   const [loading, setLoading] = useState(true)
+  const [studentData, setStudentData] = useState<any>(null)
   const router = useRouter()
 
   useEffect(() => {
+    fetchStudentData()
     fetchEvents()
   }, [])
+
+  const fetchStudentData = async () => {
+    try {
+      let token = localStorage.getItem('token')
+      
+      if (!token) {
+        const cookies = document.cookie.split(';')
+        const tokenCookie = cookies.find(cookie => cookie.trim().startsWith('token='))
+        if (tokenCookie) {
+          token = tokenCookie.trim().split('=')[1]
+        }
+      }
+      
+      if (!token) {
+        router.push('/login')
+        return
+      }
+
+      const response = await fetch('/api/student/dashboard', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setStudentData(data.student)
+      }
+    } catch (error) {
+      console.error('Error fetching student data:', error)
+    }
+  }
 
   const fetchEvents = async () => {
     try {
@@ -124,6 +159,10 @@ export default function StudentEvents() {
     }, 3000)
   }
 
+  const handleLogout = () => {
+    router.push('/')
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -133,31 +172,14 @@ export default function StudentEvents() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="px-4 py-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <Link href="/student/dashboard" className="flex items-center space-x-3">
-                <img
-                  src="/numl-logo-official.png"
-                  alt="NUML Logo"
-                  className="w-8 h-8 object-contain rounded-full"
-                />
-                <span className="text-lg font-bold text-gray-900">NUML Sports Hub</span>
-              </Link>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Link href="/student/dashboard">
-                <Button variant="ghost" size="sm">Dashboard</Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <DashboardLayout
+      userType="student"
+      userName={studentData?.name}
+      studentId={studentData?.studentID}
+      teamName={studentData?.team?.name}
+      onLogout={handleLogout}
+    >
+      <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-gray-900">Upcoming Events</h1>
           <p className="text-gray-600">Discover and participate in sports events</p>
@@ -232,6 +254,6 @@ export default function StudentEvents() {
           </div>
         )}
       </div>
-    </div>
+    </DashboardLayout>
   )
 }

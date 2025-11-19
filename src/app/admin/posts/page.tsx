@@ -58,7 +58,7 @@ export default function AdminPosts() {
         return
       }
 
-      const response = await fetch('/api/student/feed', {
+      const response = await fetch('/api/admin/posts', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -67,6 +67,12 @@ export default function AdminPosts() {
       if (response.ok) {
         const data = await response.json()
         setPosts(data)
+      } else if (response.status === 401) {
+        // Token is invalid, clear and redirect
+        localStorage.removeItem('token')
+        localStorage.removeItem('user')
+        document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT'
+        router.push('/login')
       } else {
         router.push('/login')
       }
@@ -104,7 +110,7 @@ export default function AdminPosts() {
         }
       }
 
-      const response = await fetch(`/api/student/feed?id=${postId}`, {
+      const response = await fetch(`/api/admin/posts?id=${postId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`

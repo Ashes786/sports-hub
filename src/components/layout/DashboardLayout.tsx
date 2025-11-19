@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, ReactNode } from 'react'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { Sidebar } from './Sidebar'
 
 interface DashboardLayoutProps {
@@ -48,7 +48,75 @@ export function DashboardLayout({
   onLogout 
 }: DashboardLayoutProps) {
   const pathname = usePathname()
+  const router = useRouter()
   const pageTitle = getPageTitle(pathname, userType)
+  const [isAuthenticated, setIsAuthenticated] = useState(true)
+
+  // Verify authentication on mount and route change
+  useEffect(() => {
+    const checkAuth = () => {
+      let token = localStorage.getItem('token')
+      
+      if (!token) {
+        // Fallback to cookie if localStorage is empty
+        const cookies = document.cookie.split(';')
+        const tokenCookie = cookies.find(cookie => cookie.trim().startsWith('token='))
+        if (tokenCookie) {
+          token = tokenCookie.trim().split('=')[1]
+          // Sync back to localStorage
+          localStorage.setItem('token', token)
+        }
+      }
+      
+      if (!token) {
+        setIsAuthenticated(false)
+        router.push('/login')
+        return
+      }
+      
+      // Verify token is still valid by making a test request
+      fetch('/api/auth/verify', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      }).then(response => {
+        if (!response.ok) {
+          // Token is invalid, clear and redirect
+          localStorage.removeItem('token')
+          localStorage.removeItem('user')
+          document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT'
+          setIsAuthenticated(false)
+          router.push('/login')
+        } else {
+          setIsAuthenticated(true)
+        }
+      }).catch(() => {
+        // On error, assume token is invalid
+        localStorage.removeItem('token')
+        localStorage.removeItem('user')
+        document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT'
+        setIsAuthenticated(false)
+        router.push('/login')
+      })
+    }
+
+    checkAuth()
+    
+    // Set up interval to check auth status less frequently to avoid race conditions
+    const authCheckInterval = setInterval(checkAuth, 60000) // Check every minute instead of 30 seconds
+    
+    return () => clearInterval(authCheckInterval)
+  }, [pathname, router])
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      </div>
+    )
+  }
 
   return (
     <div className="flex h-screen bg-gray-50">

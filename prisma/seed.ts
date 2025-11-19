@@ -194,7 +194,7 @@ async function main() {
     data: {
       userID: admin.id,
       content: '🏏 Cricket tournament registration is now open! All interested students can register at the sports office. Last date for registration: March 10, 2024. #Cricket #Tournament',
-      imageURL: 'https://images.unsplash.com/photo-1531415074968-036ba1b57574?w=800&h=600&fit=crop',
+      imageURL: 'https://unsplash.com/photos/a-group-of-men-standing-next-to-each-other-on-a-field-sAC58O7CQWE?w=800&h=600&fit=crop',
     },
   })
 

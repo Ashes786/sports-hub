@@ -211,7 +211,7 @@ export default function StudentFeed() {
     router.push('/')
   }
 
-  const getFallbackImage = (postId: string, index: number) => {
+  const getFallbackImage = (postId: string) => {
     const fallbackImages = [
       'basketball-post.jpg',
       'victory-celebration.jpg', 
@@ -392,7 +392,7 @@ export default function StudentFeed() {
                 {/* Add fallback images for posts without images */}
                 {!post.imageURL && (
                   <img 
-                    src={`/${getFallbackImage(post.id, posts.indexOf(post))}`} 
+                    src={`/${getFallbackImage(post.id)}`} 
                     alt="Sports activity"
                     className="w-full rounded-lg object-cover h-64 mb-4"
                   />

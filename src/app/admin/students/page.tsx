@@ -112,7 +112,6 @@ export default function AdminStudents() {
       <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Manage Students</h2>
             <p className="text-gray-600 mt-1">View and manage all student accounts</p>
           </div>
           <Button className="bg-blue-600 hover:bg-blue-700">

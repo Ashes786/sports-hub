@@ -7,8 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
+import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { Plus, Edit, Trash2, Save, X, Heart, MessageCircle, Share, MoreHorizontal } from 'lucide-react'
 import Link from 'next/link'
 
@@ -27,6 +26,7 @@ interface Post {
 export default function CreatePost() {
   const [loading, setLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [studentData, setStudentData] = useState<any>(null)
   const [formData, setFormData] = useState({
     content: '',
     imageURL: ''
@@ -34,14 +34,42 @@ export default function CreatePost() {
   const router = useRouter()
 
   useEffect(() => {
-    // Check if user is logged in
-    const token = localStorage.getItem('token')
-    if (!token) {
-      router.push('/login')
-      return
+    fetchStudentData()
+  }, [])
+
+  const fetchStudentData = async () => {
+    try {
+      let token = localStorage.getItem('token')
+      
+      if (!token) {
+        const cookies = document.cookie.split(';')
+        const tokenCookie = cookies.find(cookie => cookie.trim().startsWith('token='))
+        if (tokenCookie) {
+          token = tokenCookie.trim().split('=')[1]
+        }
+      }
+      
+      if (!token) {
+        router.push('/login')
+        return
+      }
+
+      const response = await fetch('/api/student/dashboard', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setStudentData(data.student)
+      }
+    } catch (error) {
+      console.error('Error fetching student data:', error)
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
-  }, [router])
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -86,6 +114,10 @@ export default function CreatePost() {
     }, 3000)
   }
 
+  const handleLogout = () => {
+    router.push('/')
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -95,88 +127,69 @@ export default function CreatePost() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="px-4 py-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <Link href="/student/dashboard" className="flex items-center space-x-3">
-                <img
-                  src="/numl-logo-official.png"
-                  alt="NUML Logo"
-                  className="w-8 h-8 object-contain rounded-full"
+    <DashboardLayout
+      userType="student"
+      userName={studentData?.name}
+      studentId={studentData?.studentID}
+      teamName={studentData?.team?.name}
+      onLogout={handleLogout}
+    >
+      <div className="max-w-2xl mx-auto">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <Plus className="h-5 w-5 text-blue-600" />
+              Create New Post
+            </CardTitle>
+            <CardDescription>
+              Share your thoughts, updates, or achievements with the community
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="content">Post Content *</Label>
+                <Textarea
+                  id="content"
+                  value={formData.content}
+                  onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                  placeholder="What's on your mind? Share with your teammates..."
+                  rows={6}
+                  required
                 />
-                <span className="text-lg font-bold text-gray-900">NUML Sports Hub</span>
-              </Link>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Link href="/student/dashboard">
-                <Button variant="ghost" size="sm">Dashboard</Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="max-w-2xl mx-auto">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <Plus className="h-5 w-5 text-blue-600" />
-                Create New Post
-              </CardTitle>
-              <CardDescription>
-                Share your thoughts, updates, or achievements with the community
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="content">Post Content *</Label>
-                  <Textarea
-                    id="content"
-                    value={formData.content}
-                    onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                    placeholder="What's on your mind? Share with your teammates..."
-                    rows={6}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="imageURL">Image URL (optional)</Label>
-                  <Input
-                    id="imageURL"
-                    type="url"
-                    value={formData.imageURL}
-                    onChange={(e) => setFormData({ ...formData, imageURL: e.target.value })}
-                    placeholder="https://example.com/image.jpg"
-                  />
-                </div>
-                <div className="flex justify-end space-x-2">
-                  <Button type="button" variant="outline" onClick={() => router.push('/student/feed')}>
-                    Cancel
-                  </Button>
-                  <Button type="submit" disabled={isSubmitting}>
-                    {isSubmitting ? (
-                      <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                        Posting...
-                      </>
-                    ) : (
-                      <>
-                        <Save className="h-4 w-4 mr-2" />
-                        Publish Post
-                      </>
-                    )}
-                  </Button>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
-        </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="imageURL">Image URL (optional)</Label>
+                <Input
+                  id="imageURL"
+                  type="url"
+                  value={formData.imageURL}
+                  onChange={(e) => setFormData({ ...formData, imageURL: e.target.value })}
+                  placeholder="https://example.com/image.jpg"
+                />
+              </div>
+              <div className="flex justify-end space-x-2">
+                <Button type="button" variant="outline" onClick={() => router.push('/student/feed')}>
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Posting...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="h-4 w-4 mr-2" />
+                      Publish Post
+                    </>
+                  )}
+                </Button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
       </div>
-    </div>
+    </DashboardLayout>
   )
 }

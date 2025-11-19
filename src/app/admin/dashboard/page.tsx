@@ -9,7 +9,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { TeamDistributionChart } from '@/components/charts/TeamDistributionChart'
 import { UserStatsChart } from '@/components/charts/UserStatsChart'
 import { Users, Calendar, Trophy, MessageSquare, Plus, UserPlus } from 'lucide-react'
-import { AdminNav } from '@/components/layout/AdminNav'
+import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import Link from 'next/link'
 
 interface DashboardData {
@@ -116,11 +116,13 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <AdminNav userName={userName} onLogout={handleLogout} />
-      
+    <DashboardLayout
+      userType="admin"
+      userName={userName}
+      onLogout={handleLogout}
+    >
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto">
         {/* Quick Actions */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <Card className="hover:shadow-lg transition-shadow cursor-pointer">
@@ -241,6 +243,6 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </DashboardLayout>
   )
 }

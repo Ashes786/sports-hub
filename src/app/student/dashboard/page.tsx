@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { StudentNav } from '@/components/layout/StudentNav'
+import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { Calendar, Clock, Users, Plus } from 'lucide-react'
 import Link from 'next/link'
 
@@ -124,16 +124,15 @@ export default function StudentDashboard() {
   }
 
   return (
-    <div>
-      <StudentNav 
-        studentName={data.student.name}
-        studentId={data.student.studentID}
-        teamName={data.student.team?.name}
-        onLogout={handleLogout}
-      />
-      
+    <DashboardLayout
+      userType="student"
+      userName={data.student.name}
+      studentId={data.student.studentID}
+      teamName={data.student.team?.name}
+      onLogout={handleLogout}
+    >
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto">
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Feed Section */}
           <div className="lg:col-span-2">
@@ -148,7 +147,7 @@ export default function StudentDashboard() {
               <CardContent>
                 <div className="space-y-4 max-h-96 overflow-y-auto">
                   {data.posts.length > 0 ? (
-                    data.posts.slice(0, 5).map((post) => (
+                    data.posts.slice(0, 5).map((post, index) => (
                       <div key={post.id} className="flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50">
                         <Avatar>
                           <AvatarFallback>
@@ -172,6 +171,35 @@ export default function StudentDashboard() {
                           <p className="text-sm text-gray-600 mt-1 line-clamp-2">
                             {post.content}
                           </p>
+                          {/* Add generated images to posts */}
+                          {index === 0 && !post.imageURL && (
+                            <img 
+                              src="/basketball-post.jpg" 
+                              alt="Basketball game"
+                              className="w-full rounded-lg object-cover h-48 mt-2"
+                            />
+                          )}
+                          {index === 1 && !post.imageURL && (
+                            <img 
+                              src="/victory-celebration.jpg" 
+                              alt="Victory celebration"
+                              className="w-full rounded-lg object-cover h-48 mt-2"
+                            />
+                          )}
+                          {index === 2 && !post.imageURL && (
+                            <img 
+                              src="/soccer-match.jpg" 
+                              alt="Soccer match"
+                              className="w-full rounded-lg object-cover h-48 mt-2"
+                            />
+                          )}
+                          {post.imageURL && (
+                            <img 
+                              src={post.imageURL} 
+                              alt="Post image"
+                              className="w-full rounded-lg object-cover h-48 mt-2"
+                            />
+                          )}
                           <p className="text-xs text-gray-500 mt-1">
                             {new Date(post.createdAt).toLocaleDateString()}
                           </p>
@@ -314,6 +342,6 @@ export default function StudentDashboard() {
           </div>
         </div>
       </div>
-    </div>
+    </DashboardLayout>
   )
 }

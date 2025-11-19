@@ -53,30 +53,6 @@ export function AdminNav({ userName, onLogout }: AdminNavProps) {
             </Button>
           </div>
         </div>
-      </nav>
-      <div className="bg-gray-50 border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex space-x-8 py-3 overflow-x-auto">
-            {menuItems.map((item) => {
-              const Icon = item.icon
-              const isActive = pathname === item.href
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`flex items-center space-x-3 px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
-                    isActive 
-                      ? 'bg-blue-600 text-white' 
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                  }`}
-                >
-                  <Icon className="h-5 w-5" />
-                  <span>{item.label}</span>
-                </Link>
-              )
-            })}
-          </div>
-        </div>
       </div>
     </nav>
   )

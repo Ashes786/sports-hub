@@ -4,14 +4,10 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { Plus, Edit, Trash2, Save, X, Megaphone } from 'lucide-react'
-import Link from 'next/link'
+import { DashboardLayout } from '@/components/layout/DashboardLayout'
+import { Megaphone, Plus, Edit, Trash2, Calendar, User } from 'lucide-react'
 
 interface Announcement {
   id: string
@@ -27,22 +23,31 @@ interface Announcement {
 export default function AdminAnnouncements() {
   const [announcements, setAnnouncements] = useState<Announcement[]>([])
   const [loading, setLoading] = useState(true)
-  const [showCreateForm, setShowCreateForm] = useState(false)
-  const [editingAnnouncement, setEditingAnnouncement] = useState<Announcement | null>(null)
-  const [formData, setFormData] = useState({
-    content: '',
-    imageURL: ''
-  })
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [userName, setUserName] = useState('')
   const router = useRouter()
 
   useEffect(() => {
     fetchAnnouncements()
+    // Get user name from localStorage
+    const user = localStorage.getItem('user')
+    if (user) {
+      const userData = JSON.parse(user)
+      setUserName(userData.name)
+    }
   }, [])
 
   const fetchAnnouncements = async () => {
     try {
-      const token = localStorage.getItem('token')
+      let token = localStorage.getItem('token')
+      
+      if (!token) {
+        const cookies = document.cookie.split(';')
+        const tokenCookie = cookies.find(cookie => cookie.trim().startsWith('token='))
+        if (tokenCookie) {
+          token = tokenCookie.trim().split('=')[1]
+        }
+      }
+      
       if (!token) {
         router.push('/login')
         return
@@ -62,55 +67,33 @@ export default function AdminAnnouncements() {
       }
     } catch (error) {
       console.error('Error fetching announcements:', error)
+      router.push('/login')
     } finally {
       setLoading(false)
     }
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
-
-    try {
-      const token = localStorage.getItem('token')
-      const url = editingAnnouncement ? '/api/admin/announcements' : '/api/admin/announcements'
-      const method = editingAnnouncement ? 'PUT' : 'POST'
-
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          ...formData,
-          id: editingAnnouncement?.id
-        })
-      })
-
-      if (response.ok) {
-        await fetchAnnouncements()
-        resetForm()
-        showToast(editingAnnouncement ? 'Announcement updated successfully' : 'Announcement created successfully')
-      } else {
-        showToast('Error saving announcement', 'error')
-      }
-    } catch (error) {
-      console.error('Error saving announcement:', error)
-      showToast('Error saving announcement', 'error')
-    } finally {
-      setIsSubmitting(false)
-    }
+  const handleLogout = () => {
+    router.push('/')
   }
 
-  const handleDelete = async (id: string) => {
+  const handleDeleteAnnouncement = async (announcementId: string) => {
     if (!confirm('Are you sure you want to delete this announcement?')) {
       return
     }
 
     try {
-      const token = localStorage.getItem('token')
-      const response = await fetch(`/api/admin/announcements?id=${id}`, {
+      let token = localStorage.getItem('token')
+      
+      if (!token) {
+        const cookies = document.cookie.split(';')
+        const tokenCookie = cookies.find(cookie => cookie.trim().startsWith('token='))
+        if (tokenCookie) {
+          token = tokenCookie.trim().split('=')[1]
+        }
+      }
+
+      const response = await fetch(`/api/admin/announcements?id=${announcementId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -118,34 +101,14 @@ export default function AdminAnnouncements() {
       })
 
       if (response.ok) {
-        await fetchAnnouncements()
-        showToast('Announcement deleted successfully')
+        await fetchAnnouncements() // Refresh the announcements list
       } else {
-        showToast('Error deleting announcement', 'error')
+        alert('Failed to delete announcement')
       }
     } catch (error) {
       console.error('Error deleting announcement:', error)
-      showToast('Error deleting announcement', 'error')
+      alert('Error deleting announcement')
     }
-  }
-
-  const resetForm = () => {
-    setFormData({ content: '', imageURL: '' })
-    setEditingAnnouncement(null)
-    setShowCreateForm(false)
-  }
-
-  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
-    const toast = document.createElement('div')
-    toast.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 ${
-      type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
-    }`
-    toast.textContent = message
-    document.body.appendChild(toast)
-    
-    setTimeout(() => {
-      document.body.removeChild(toast)
-    }, 3000)
   }
 
   if (loading) {
@@ -157,183 +120,76 @@ export default function AdminAnnouncements() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="px-4 py-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <Link href="/admin/dashboard" className="flex items-center space-x-3">
-                <img
-                  src="/numl-logo-official.png"
-                  alt="NUML Logo"
-                  className="w-8 h-8 object-contain rounded-full"
-                />
-                <span className="text-lg font-bold text-gray-900">Admin Panel</span>
-              </Link>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Link href="/admin/dashboard">
-                <Button variant="ghost" size="sm">Dashboard</Button>
-              </Link>
-              <Link href="/admin/events">
-                <Button variant="ghost" size="sm">Events</Button>
-              </Link>
-              <Link href="/admin/teams">
-                <Button variant="ghost" size="sm">Teams</Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <DashboardLayout
+      userType="admin"
+      userName={userName}
+      onLogout={handleLogout}
+    >
+      <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-900">Announcements</h1>
-          <Button onClick={() => setShowCreateForm(true)} className="bg-blue-600 hover:bg-blue-700">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">Manage Announcements</h2>
+            <p className="text-gray-600 mt-1">Create and manage official announcements</p>
+          </div>
+          <Button className="bg-blue-600 hover:bg-blue-700">
             <Plus className="h-4 w-4 mr-2" />
             Create Announcement
           </Button>
         </div>
 
-        {/* Create/Edit Form Modal */}
-        {showCreateForm && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <Card className="w-full max-w-3xl mx-4 max-h-[90vh] overflow-y-auto">
+        {/* Announcements List */}
+        <div className="space-y-6">
+          {announcements.map((announcement) => (
+            <Card key={announcement.id} className="hover:shadow-lg transition-shadow">
               <CardHeader>
-                <div className="flex justify-between items-center">
-                  <CardTitle className="flex items-center space-x-2">
-                    <Megaphone className="h-5 w-5 text-blue-600" />
-                    {editingAnnouncement ? 'Edit Announcement' : 'Create New Announcement'}
-                  </CardTitle>
-                  <Button variant="ghost" size="sm" onClick={resetForm}>
-                    <X className="h-4 w-4" />
+                <div className="flex justify-between items-start">
+                  <div className="flex-1">
+                    <CardTitle className="text-lg line-clamp-2">{announcement.content}</CardTitle>
+                    <CardDescription className="flex items-center space-x-2 mt-1">
+                      <div className="flex items-center space-x-2">
+                        <User className="h-4 w-4 text-gray-500" />
+                        <span className="text-sm">{announcement.user.name}</span>
+                      </div>
+                      <Badge variant="destructive" className="text-xs">ADMIN</Badge>
+                    </CardDescription>
+                  </div>
+                  <Button 
+                    variant="destructive" 
+                    size="sm"
+                    onClick={() => handleDeleteAnnouncement(announcement.id)}
+                  >
+                    <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
               </CardHeader>
               <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="content">Announcement Content *</Label>
-                    <Textarea
-                      id="content"
-                      value={formData.content}
-                      onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                      placeholder="Enter your announcement content..."
-                      rows={6}
-                      required
+                <div className="space-y-4">
+                  {announcement.imageURL && (
+                    <img 
+                      src={announcement.imageURL} 
+                      alt="Announcement image"
+                      className="w-full rounded-lg object-cover h-48 mb-3"
                     />
+                  )}
+                  
+                  <div className="flex items-center space-x-2 text-sm text-gray-600">
+                    <Calendar className="h-4 w-4" />
+                    <span>{new Date(announcement.createdAt).toLocaleDateString()} at {new Date(announcement.createdAt).toLocaleTimeString()}</span>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="imageURL">Image URL (optional)</Label>
-                    <Input
-                      id="imageURL"
-                      value={formData.imageURL}
-                      onChange={(e) => setFormData({ ...formData, imageURL: e.target.value })}
-                      placeholder="Enter image URL (optional)"
-                    />
-                  </div>
-                  <div className="flex justify-end space-x-2">
-                    <Button type="button" variant="outline" onClick={resetForm}>
-                      Cancel
-                    </Button>
-                    <Button type="submit" disabled={isSubmitting}>
-                      {isSubmitting ? (
-                        <>
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                          Publishing...
-                        </>
-                      ) : (
-                        <>
-                          <Save className="h-4 w-4 mr-2" />
-                          {editingAnnouncement ? 'Update Announcement' : 'Publish Announcement'}
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                </form>
+                </div>
               </CardContent>
             </Card>
+          ))}
+        </div>
+
+        {announcements.length === 0 && (
+          <div className="text-center py-12">
+            <Megaphone className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No Announcements Found</h3>
+            <p className="text-gray-600">No announcements have been created yet. Create your first announcement to get started.</p>
           </div>
         )}
-
-        {/* Announcements Table */}
-        <Card>
-          <CardHeader>
-            <CardTitle>All Announcements</CardTitle>
-            <CardDescription>Manage official announcements for students</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Content</TableHead>
-                  <TableHead>Created By</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {announcements.map((announcement) => (
-                  <TableRow key={announcement.id}>
-                    <TableCell>
-                      <div className="max-w-md">
-                        <p className="line-clamp-3 text-sm">{announcement.content}</p>
-                        {announcement.imageURL && (
-                          <img 
-                            src={announcement.imageURL} 
-                            alt="Announcement image"
-                            className="mt-2 rounded-lg max-h-32 object-cover"
-                          />
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center space-x-3">
-                        <Avatar className="h-8 w-8">
-                          <AvatarFallback>
-                            {announcement.user.name.split(' ').map(n => n[0]).join('').toUpperCase()}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="text-sm font-medium">{announcement.user.name}</p>
-                          <Badge variant="destructive" className="text-xs">ADMIN</Badge>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>{new Date(announcement.createdAt).toLocaleDateString()}</TableCell>
-                    <TableCell>
-                      <div className="flex space-x-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            setEditingAnnouncement(announcement)
-                            setFormData({
-                              content: announcement.content,
-                              imageURL: announcement.imageURL || ''
-                            })
-                            setShowCreateForm(true)
-                          }}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => handleDelete(announcement.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
       </div>
-    </div>
+    </DashboardLayout>
   )
 }

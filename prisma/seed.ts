@@ -36,6 +36,7 @@ async function main() {
       password: studentPassword,
       role: 'STUDENT',
       studentID: 'NUML2024001',
+      department: 'BS Computer Science',
     },
   })
 
@@ -46,6 +47,7 @@ async function main() {
       password: studentPassword,
       role: 'STUDENT',
       studentID: 'NUML2024002',
+      department: 'BS English',
     },
   })
 
@@ -56,6 +58,7 @@ async function main() {
       password: studentPassword,
       role: 'STUDENT',
       studentID: 'NUML2024003',
+      department: 'BS Business Administration',
     },
   })
 
@@ -66,6 +69,7 @@ async function main() {
     data: {
       name: 'NUML Cricket Club',
       sport: 'Cricket',
+      department: 'BS Computer Science',
       createdBy: admin.id,
     },
   })
@@ -74,6 +78,7 @@ async function main() {
     data: {
       name: 'NUML Football Club',
       sport: 'Football',
+      department: 'BS English',
       createdBy: admin.id,
     },
   })
@@ -82,6 +87,7 @@ async function main() {
     data: {
       name: 'NUML Basketball Club',
       sport: 'Basketball',
+      department: 'BS Business Administration',
       createdBy: admin.id,
     },
   })
@@ -90,6 +96,7 @@ async function main() {
     data: {
       name: 'NUML Badminton Club',
       sport: 'Badminton',
+      department: 'BS Business Administration',
       createdBy: admin.id,
     },
   })
@@ -119,6 +126,8 @@ async function main() {
       description: 'Annual cricket tournament featuring all university teams. Come and support your favorite team!',
       date: new Date('2024-03-15T10:00:00Z'),
       sport: 'Cricket',
+      type: 'TOURNAMENT',
+      location: 'NUML Sports Ground',
       createdBy: admin.id,
     },
   })
@@ -129,6 +138,8 @@ async function main() {
       description: 'Inter-department football championship. Registration open for all students.',
       date: new Date('2024-03-20T14:00:00Z'),
       sport: 'Football',
+      type: 'TOURNAMENT',
+      location: 'Main Football Field',
       createdBy: admin.id,
     },
   })
@@ -139,16 +150,39 @@ async function main() {
       description: 'Fast-paced 3x3 basketball tournament. Teams of 3-4 players can register.',
       date: new Date('2024-03-25T16:00:00Z'),
       sport: 'Basketball',
+      type: 'TOURNAMENT',
+      location: 'Indoor Sports Complex',
       createdBy: admin.id,
     },
   })
 
   const event4 = await prisma.event.create({
     data: {
-      title: 'Badminton Singles Championship',
-      description: 'Individual badminton championship for both men and women categories.',
-      date: new Date('2024-03-18T09:00:00Z'),
+      title: 'Cricket vs Football Match',
+      description: 'Friendly match between cricket and football club teams.',
+      date: new Date('2024-04-01T10:00:00Z'),
+      sport: 'Cricket',
+      type: 'MATCH',
+      location: 'Main Sports Ground',
+      teamAID: cricketTeam.id,
+      teamBID: footballTeam.id,
+      status: 'UPCOMING',
+      createdBy: admin.id,
+    },
+  })
+
+  const event5 = await prisma.event.create({
+    data: {
+      title: 'Badminton Singles Final',
+      description: 'Championship final match for badminton singles category.',
+      date: new Date('2024-04-05T09:00:00Z'),
       sport: 'Badminton',
+      type: 'MATCH',
+      location: 'Indoor Badminton Court',
+      teamAID: badmintonTeam.id,
+      status: 'COMPLETED',
+      scoreA: 21,
+      scoreB: 19,
       createdBy: admin.id,
     },
   })
@@ -217,8 +251,16 @@ async function main() {
   console.log('\n📊 Summary:')
   console.log(`   Users: 4 (1 Admin, 3 Students)`)
   console.log(`   Teams: 4 (Cricket, Football, Basketball, Badminton)`)
-  console.log(`   Events: 4 (Upcoming tournaments)`)
+  console.log(`   Events: 5 (3 Tournaments, 2 Matches)`)
   console.log(`   Posts: 6 (Announcements and updates)`)
+  console.log('\n🏫 Team-Department Structure:')
+  console.log('   Cricket Team: BS Computer Science')
+  console.log('   Football Team: BS English')
+  console.log('   Basketball Team: BS Business Administration')
+  console.log('   Badminton Team: BS Business Administration')
+  console.log('\n⚽ Event Types:')
+  console.log('   Tournaments: Cricket, Football, Basketball')
+  console.log('   Matches: Cricket vs Football, Badminton Singles (Completed)')
 }
 
 main()

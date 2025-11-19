@@ -1,0 +1,100 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      Role     @default(STUDENT)
+  studentID String?  @unique
+  teamID    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  team     Team?  @relation("UserTeam", fields: [teamID], references: [id])
+  posts    Post[]
+  events   Event[]
+  teams    Team[] @relation("TeamCreator")
+  participations EventParticipant[]
+
+  @@map("users")
+}
+
+model Team {
+  id        String   @id @default(cuid())
+  name      String
+  sport     String
+  createdBy String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  creator User   @relation("TeamCreator", fields: [createdBy], references: [id])
+  members User[] @relation("UserTeam")
+
+  @@map("teams")
+}
+
+model Event {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  date        DateTime
+  sport       String
+  createdBy   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  creator User @relation(fields: [createdBy], references: [id])
+  participants EventParticipant[]
+
+  @@map("events")
+}
+
+model EventParticipant {
+  id        String   @id @default(cuid())
+  eventId   String
+  userId     String
+  joinedAt   DateTime @default(now())
+
+  // Relations
+  event Event @relation(fields: [eventId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([eventId, userId])
+  @@map("event_participants")
+}
+
+model Post {
+  id        String   @id @default(cuid())
+  userID    String
+  content   String
+  imageURL  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user User @relation(fields: [userID], references: [id])
+
+  @@map("posts")
+}
+
+enum Role {
+  STUDENT
+  ADMIN
+}

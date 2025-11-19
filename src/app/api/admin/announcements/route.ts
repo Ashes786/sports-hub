@@ -1,14 +1,36 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { verifyToken } from '@/lib/auth'
 
 // GET all announcements (posts)
 export async function GET(request: NextRequest) {
   try {
-    const userRole = request.headers.get('x-user-role')
-    
-    if (userRole !== 'ADMIN') {
+    // Get token from Authorization header or cookies
+    const authHeader = request.headers.get('Authorization')
+    const token = authHeader?.replace('Bearer ', '') || 
+                  request.cookies.get('token')?.value
+
+    if (!token) {
       return NextResponse.json(
-        { error: 'Access denied' },
+        { error: 'Unauthorized - No token' },
+        { status: 401 }
+      )
+    }
+
+    // Verify token
+    const decoded = verifyToken(token)
+
+    if (!decoded) {
+      return NextResponse.json(
+        { error: 'Unauthorized - Invalid token' },
+        { status: 401 }
+      )
+    }
+
+    // Check if user is admin
+    if (decoded.role !== 'ADMIN') {
+      return NextResponse.json(
+        { error: 'Forbidden - Admin access required' },
         { status: 403 }
       )
     }
@@ -43,12 +65,32 @@ export async function GET(request: NextRequest) {
 // POST create announcement
 export async function POST(request: NextRequest) {
   try {
-    const userRole = request.headers.get('x-user-role')
-    const userId = request.headers.get('x-user-id')
-    
-    if (userRole !== 'ADMIN') {
+    // Get token from Authorization header or cookies
+    const authHeader = request.headers.get('Authorization')
+    const token = authHeader?.replace('Bearer ', '') || 
+                  request.cookies.get('token')?.value
+
+    if (!token) {
       return NextResponse.json(
-        { error: 'Access denied' },
+        { error: 'Unauthorized - No token' },
+        { status: 401 }
+      )
+    }
+
+    // Verify token
+    const decoded = verifyToken(token)
+
+    if (!decoded) {
+      return NextResponse.json(
+        { error: 'Unauthorized - Invalid token' },
+        { status: 401 }
+      )
+    }
+
+    // Check if user is admin
+    if (decoded.role !== 'ADMIN') {
+      return NextResponse.json(
+        { error: 'Forbidden - Admin access required' },
         { status: 403 }
       )
     }
@@ -66,7 +108,7 @@ export async function POST(request: NextRequest) {
       data: {
         content,
         imageURL,
-        userID: userId
+        userID: decoded.userId
       },
       include: {
         user: {
@@ -91,11 +133,32 @@ export async function POST(request: NextRequest) {
 // PUT update announcement
 export async function PUT(request: NextRequest) {
   try {
-    const userRole = request.headers.get('x-user-role')
-    
-    if (userRole !== 'ADMIN') {
+    // Get token from Authorization header or cookies
+    const authHeader = request.headers.get('Authorization')
+    const token = authHeader?.replace('Bearer ', '') || 
+                  request.cookies.get('token')?.value
+
+    if (!token) {
       return NextResponse.json(
-        { error: 'Access denied' },
+        { error: 'Unauthorized - No token' },
+        { status: 401 }
+      )
+    }
+
+    // Verify token
+    const decoded = verifyToken(token)
+
+    if (!decoded) {
+      return NextResponse.json(
+        { error: 'Unauthorized - Invalid token' },
+        { status: 401 }
+      )
+    }
+
+    // Check if user is admin
+    if (decoded.role !== 'ADMIN') {
+      return NextResponse.json(
+        { error: 'Forbidden - Admin access required' },
         { status: 403 }
       )
     }
@@ -130,11 +193,32 @@ export async function PUT(request: NextRequest) {
 // DELETE announcement
 export async function DELETE(request: NextRequest) {
   try {
-    const userRole = request.headers.get('x-user-role')
-    
-    if (userRole !== 'ADMIN') {
+    // Get token from Authorization header or cookies
+    const authHeader = request.headers.get('Authorization')
+    const token = authHeader?.replace('Bearer ', '') || 
+                  request.cookies.get('token')?.value
+
+    if (!token) {
       return NextResponse.json(
-        { error: 'Access denied' },
+        { error: 'Unauthorized - No token' },
+        { status: 401 }
+      )
+    }
+
+    // Verify token
+    const decoded = verifyToken(token)
+
+    if (!decoded) {
+      return NextResponse.json(
+        { error: 'Unauthorized - Invalid token' },
+        { status: 401 }
+      )
+    }
+
+    // Check if user is admin
+    if (decoded.role !== 'ADMIN') {
+      return NextResponse.json(
+        { error: 'Forbidden - Admin access required' },
         { status: 403 }
       )
     }

@@ -182,9 +182,20 @@ export function Sidebar({ userType, userName, studentId, teamName, onLogout }: S
   return (
     <>
       {/* Desktop Sidebar */}
-      <div className={`hidden md:flex bg-white border-r transition-all duration-300 ${
+      <div className={`hidden md:flex bg-white border-r transition-all duration-300 relative ${
         isCollapsed ? 'w-20' : 'w-64'
       }`}>
+        {/* Toggle Button */}
+        <button
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="absolute -right-3 top-20 bg-white border rounded-full p-1 shadow-md hover:bg-gray-50 z-10"
+        >
+          {isCollapsed ? (
+            <Menu className="h-4 w-4" />
+          ) : (
+            <X className="h-4 w-4" />
+          )}
+        </button>
         <SidebarContent
           userType={userType}
           userName={userName}
@@ -193,17 +204,6 @@ export function Sidebar({ userType, userName, studentId, teamName, onLogout }: S
           onLogout={onLogout}
           isCollapsed={isCollapsed}
         />
-        {/* Toggle Button */}
-        <button
-          onClick={() => setIsCollapsed(!isCollapsed)}
-          className="absolute -right-3 top-20 bg-white border rounded-full p-1 shadow-md hover:bg-gray-50"
-        >
-          {isCollapsed ? (
-            <Menu className="h-4 w-4" />
-          ) : (
-            <X className="h-4 w-4" />
-          )}
-        </button>
       </div>
 
       {/* Mobile Sidebar */}

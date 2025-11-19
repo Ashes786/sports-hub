@@ -130,11 +130,8 @@ export function DashboardLayout({
       
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto">
-        {/* Mobile Top Bar Spacer */}
-        <div className="md:hidden h-16"></div>
-        
         {/* Page Header */}
-        <div className="bg-white border-b px-6 py-4">
+        <div className="bg-white border-b px-6 py-4 sticky top-0 z-10">
           <div className="max-w-7xl mx-auto">
             <h1 className="text-2xl font-bold text-gray-900">
               {pageTitle}

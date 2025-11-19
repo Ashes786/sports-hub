@@ -118,7 +118,7 @@ export default function AdminPosts() {
       })
 
       if (response.ok) {
-        await fetchPosts() // Refresh the posts list
+        await fetchPosts() // Refresh posts list
       } else {
         alert('Failed to delete post')
       }
@@ -200,10 +200,9 @@ export default function AdminPosts() {
                           </Badge>
                         )}
                       </div>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-gray-500 mb-3">
                         {new Date(post.createdAt).toLocaleDateString()} at {new Date(post.createdAt).toLocaleTimeString()}
                       </p>
-                      </div>
                       <p className="text-gray-700 mb-3 line-clamp-3">{post.content}</p>
                       {post.imageURL && (
                         <img 
@@ -235,23 +234,24 @@ export default function AdminPosts() {
                           <Button variant="ghost" size="sm">
                             <Edit className="h-4 w-4" />
                           </Button>
-                          <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700">
+                          <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700" onClick={() => handleDeletePost(post.id)}>
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
                       </div>
                     </div>
                   </div>
-                ))}
-              </div>
-              
-              {filteredPosts.length === 0 && (
-                <div className="text-center py-8 text-gray-500">
-                  <MessageSquare className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                  <p>No posts found matching your search criteria.</p>
                 </div>
-              )}
-            </CardContent>
+              ))}
+            </div>
+            
+            {filteredPosts.length === 0 && (
+              <div className="text-center py-8 text-gray-500">
+                <MessageSquare className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                <p>No posts found matching your search criteria.</p>
+              </div>
+            )}
+          </CardContent>
         </Card>
       </div>
     </DashboardLayout>

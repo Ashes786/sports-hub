@@ -211,6 +211,19 @@ export default function StudentFeed() {
     router.push('/')
   }
 
+  const getFallbackImage = (postId: string, index: number) => {
+    const fallbackImages = [
+      'basketball-post.jpg',
+      'victory-celebration.jpg', 
+      'soccer-match.jpg',
+      'cricket-match.jpg',
+      'table-tennis.jpg'
+    ]
+    // Use post ID to ensure consistent image assignment
+    const imageIndex = Math.abs(postId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)) % fallbackImages.length
+    return fallbackImages[imageIndex]
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -379,29 +392,11 @@ export default function StudentFeed() {
                 <p className="text-gray-700 mb-4">{post.content}</p>
                 {/* Add fallback images for posts without images */}
                 {!post.imageURL && (
-                  <>
-                    {posts.indexOf(post) === 0 && (
-                      <img 
-                        src="/basketball-post.jpg" 
-                        alt="Basketball game"
-                        className="w-full rounded-lg object-cover h-64 mb-4"
-                      />
-                    )}
-                    {posts.indexOf(post) === 1 && (
-                      <img 
-                        src="/victory-celebration.jpg" 
-                        alt="Victory celebration"
-                        className="w-full rounded-lg object-cover h-64 mb-4"
-                      />
-                    )}
-                    {posts.indexOf(post) === 2 && (
-                      <img 
-                        src="/soccer-match.jpg" 
-                        alt="Soccer match"
-                        className="w-full rounded-lg object-cover h-64 mb-4"
-                      />
-                    )}
-                  </>
+                  <img 
+                    src={`/${getFallbackImage(post.id, posts.indexOf(post))}`} 
+                    alt="Sports activity"
+                    className="w-full rounded-lg object-cover h-64 mb-4"
+                  />
                 )}
                 {post.imageURL && (
                   <img 

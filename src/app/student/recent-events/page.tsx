@@ -133,6 +133,22 @@ export default function RecentEvents() {
     return sportColors[sport as keyof typeof sportColors] || 'bg-gray-100 text-gray-800 border-gray-300'
   }
 
+  const getEventBackgroundImage = (sport: string) => {
+    const sportImages = {
+      'Cricket': '/cricket-event-bg.jpg',
+      'Football': '/football-event-bg.jpg',
+      'Basketball': '/basketball-event-bg.jpg',
+      'Badminton': '/badminton-event-bg.jpg',
+      'Tennis': '/tennis-event-bg.jpg',
+      'Volleyball': '/football-event-bg.jpg',
+      'Hockey': '/basketball-event-bg.jpg',
+      'Swimming': '/football-event-bg.jpg',
+      'Athletics': '/cricket-event-bg.jpg',
+      'Table Tennis': '/tennis-event-bg.jpg'
+    }
+    return sportImages[sport as keyof typeof sportImages] || '/cricket-event-bg.jpg'
+  }
+
   const getUrgencyColor = (daysUntil: number) => {
     if (daysUntil <= 7) return 'text-green-600'
     if (daysUntil <= 14) return 'text-yellow-600'
@@ -187,13 +203,20 @@ export default function RecentEvents() {
             const isToday = new Date(event.date).toDateString() === new Date().toDateString()
             
             return (
-              <Card key={event.id} className={`hover:shadow-lg transition-shadow ${isToday ? 'ring-2 ring-blue-500' : ''}`}>
-                <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <CardTitle className="text-xl">{event.title}</CardTitle>
-                      <div className="flex items-center space-x-2 mt-2">
-                        <Badge className={getSportColor(event.sport)}>
+              <Card key={event.id} className={`hover:shadow-lg transition-shadow overflow-hidden ${isToday ? 'ring-2 ring-blue-500' : ''}`}>
+                {/* Background Image with Blue Overlay */}
+                <div 
+                  className="relative h-48 bg-cover bg-center"
+                  style={{
+                    backgroundImage: `url("${getEventBackgroundImage(event.sport)}")`
+                  }}
+                >
+                  <div className="absolute inset-0 bg-blue-600 bg-opacity-80"></div>
+                  <div className="relative z-10 p-4 h-full flex flex-col justify-between text-white">
+                    <div>
+                      <CardTitle className="text-xl text-white mb-2">{event.title}</CardTitle>
+                      <div className="flex items-center space-x-2">
+                        <Badge className="bg-white text-blue-800 hover:bg-gray-100">
                           {event.sport}
                         </Badge>
                         {isToday && (
@@ -203,15 +226,18 @@ export default function RecentEvents() {
                         )}
                       </div>
                     </div>
-                    <div className="text-sm text-gray-500">
-                      {formattedDate.weekday} • {formattedDate.time}
+                    <div className="flex items-center space-x-2 text-white text-sm">
+                      <MapPin className="h-4 w-4" />
+                      <span className="text-white">
+                        {event.location || 'NUML Sports Complex'}
+                      </span>
                     </div>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <MapPin className="h-4 w-4 text-gray-400" />
-                    <span className="text-sm text-gray-600">
-                      {event.location || 'NUML Sports Complex'}
-                    </span>
+                </div>
+                
+                <CardHeader className="pb-3">
+                  <div className="text-sm text-gray-500">
+                    {formattedDate.weekday} • {formattedDate.time}
                   </div>
                 </CardHeader>
               <CardContent>

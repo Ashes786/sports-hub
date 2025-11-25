@@ -43,13 +43,6 @@ interface Post {
 export default function StudentFeed() {
   const [posts, setPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
-  const [showCreateForm, setShowCreateForm] = useState(false)
-  const [editingPost, setEditingPost] = useState<Post | null>(null)
-  const [formData, setFormData] = useState({
-    content: '',
-    imageURL: ''
-  })
-  const [isSubmitting, setIsSubmitting] = useState(false)
   const [studentData, setStudentData] = useState<any>(null)
   const router = useRouter()
 
@@ -117,83 +110,6 @@ export default function StudentFeed() {
     }
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
-
-    try {
-      const token = localStorage.getItem('token')
-      const url = editingPost ? '/api/student/feed' : '/api/student/feed'
-      const method = editingPost ? 'PUT' : 'POST'
-
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          ...formData,
-          id: editingPost?.id
-        })
-      })
-
-      if (response.ok) {
-        await fetchPosts()
-        resetForm()
-        showToast(editingPost ? 'Post updated successfully' : 'Post created successfully')
-      } else {
-        showToast('Error saving post', 'error')
-      }
-    } catch (error) {
-      console.error('Error saving post:', error)
-      showToast('Error saving post', 'error')
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
-
-  const handleEdit = (post: Post) => {
-    setEditingPost(post)
-    setFormData({
-      content: post.content,
-      imageURL: post.imageURL || ''
-    })
-    setShowCreateForm(true)
-  }
-
-  const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this post?')) {
-      return
-    }
-
-    try {
-      const token = localStorage.getItem('token')
-      const response = await fetch(`/api/student/feed?id=${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
-
-      if (response.ok) {
-        await fetchPosts()
-        showToast('Post deleted successfully')
-      } else {
-        showToast('Error deleting post', 'error')
-      }
-    } catch (error) {
-      console.error('Error deleting post:', error)
-      showToast('Error deleting post', 'error')
-    }
-  }
-
-  const resetForm = () => {
-    setFormData({ content: '', imageURL: '' })
-    setEditingPost(null)
-    setShowCreateForm(false)
-  }
-
   const showToast = (message: string, type: 'success' | 'error' = 'success') => {
     const toast = document.createElement('div')
     toast.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 ${
@@ -242,69 +158,11 @@ export default function StudentFeed() {
     >
       <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-6">
-          <Button onClick={() => setShowCreateForm(true)} className="bg-blue-600 hover:bg-blue-700">
-            <Plus className="h-4 w-4 mr-2" />
-            Create Post
-          </Button>
-        </div>
-
-        {/* Create/Edit Form Modal */}
-        {showCreateForm && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <Card className="w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
-              <CardHeader>
-                <div className="flex justify-between items-center">
-                  <CardTitle>{editingPost ? 'Edit Post' : 'Create New Post'}</CardTitle>
-                  <Button variant="ghost" size="sm" onClick={resetForm}>
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="content">Post Content *</Label>
-                    <Textarea
-                      id="content"
-                      value={formData.content}
-                      onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                      placeholder="Share your thoughts with the community..."
-                      rows={6}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="imageURL">Image URL (optional)</Label>
-                    <Input
-                      id="imageURL"
-                      value={formData.imageURL}
-                      onChange={(e) => setFormData({ ...formData, imageURL: e.target.value })}
-                      placeholder="Enter image URL (optional)"
-                    />
-                  </div>
-                  <div className="flex justify-end space-x-2">
-                    <Button type="button" variant="outline" onClick={resetForm}>
-                      Cancel
-                    </Button>
-                    <Button type="submit" disabled={isSubmitting}>
-                      {isSubmitting ? (
-                        <>
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                          Posting...
-                        </>
-                      ) : (
-                        <>
-                          <Save className="h-4 w-4 mr-2" />
-                          {editingPost ? 'Update Post' : 'Post'}
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                </form>
-              </CardContent>
-            </Card>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Admin Announcements</h1>
+            <p className="text-gray-600 mt-1">Official announcements and updates from sports administrators</p>
           </div>
-        )}
+        </div>
 
         {/* Posts Feed */}
         <div className="space-y-6">
@@ -357,33 +215,6 @@ export default function StudentFeed() {
                     >
                       <Share className="h-4 w-4" />
                     </Button>
-                    {/* Only show edit/delete for user's own posts */}
-                    {(() => {
-                      const currentUser = JSON.parse(localStorage.getItem('user') || '{}')
-                      const isOwnPost = post.user.email === currentUser.email
-                      
-                      if (isOwnPost) {
-                        return (
-                          <div className="flex items-center space-x-1">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleEdit(post)}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleDelete(post.id)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        )
-                      }
-                      return null
-                    })()}
                   </div>
                 </div>
               </CardHeader>
@@ -408,6 +239,16 @@ export default function StudentFeed() {
             </Card>
           ))}
         </div>
+
+        {posts.length === 0 && (
+          <div className="text-center py-12">
+            <div className="h-16 w-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
+              <MessageCircle className="h-8 w-8 text-gray-400" />
+            </div>
+            <h3 className="text-xl font-semibold text-gray-600 mb-2">No Announcements Yet</h3>
+            <p className="text-gray-500">Check back later for official announcements from sports administrators</p>
+          </div>
+        )}
       </div>
     </DashboardLayout>
   )

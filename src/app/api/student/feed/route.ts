@@ -28,6 +28,11 @@ export async function GET(request: NextRequest) {
     }
 
     const posts = await db.post.findMany({
+      where: {
+        user: {
+          role: 'ADMIN'
+        }
+      },
       take: 20,
       orderBy: { createdAt: 'desc' },
       include: {

@@ -5,8 +5,24 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Trophy, Users, Calendar, Target, ArrowRight, Star } from 'lucide-react'
+import { useState, useEffect } from 'react'
 
 export default function Home() {
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const heroImages = [
+    '/hero-slider-1.jpeg',
+    '/hero-slider-2.jpeg',
+    '/hero-slider-3.jpeg'
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % heroImages.length);
+    }, 4000); // Change slide every 4 seconds
+
+    return () => clearInterval(interval);
+  }, [heroImages.length]);
+
   return (
     <div className="min-h-screen bg-white">
       {/* Navigation */}
@@ -58,13 +74,37 @@ export default function Home() {
       {/* Hero Section */}
       <section className="relative text-white overflow-hidden">
         <div className="absolute inset-0">
-          <img
-            src="/sports-team-hero.jpg"
-            alt="NUML Sports Team"
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-900/90 via-blue-800/80 to-indigo-900/90"></div>
+          {heroImages.map((image, index) => (
+            <div
+              key={index}
+              className={`absolute inset-0 transition-opacity duration-1000 ${
+                index === currentSlide ? 'opacity-100' : 'opacity-0'
+              }`}
+            >
+              <img
+                src={image}
+                alt={`NUML Sports ${index + 1}`}
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-900/90 via-blue-800/80 to-indigo-900/90"></div>
+            </div>
+          ))}
         </div>
+        
+        {/* Slider indicators */}
+        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
+          {heroImages.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentSlide(index)}
+              className={`w-3 h-3 rounded-full transition-colors ${
+                index === currentSlide ? 'bg-white' : 'bg-white/50'
+              }`}
+              aria-label={`Go to slide ${index + 1}`}
+            />
+          ))}
+        </div>
+
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
           <div className="text-center">
             <div className="mb-8">

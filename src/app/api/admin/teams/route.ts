@@ -43,6 +43,12 @@ export async function GET(request: NextRequest) {
             email: true
           }
         },
+        coach: {
+          select: {
+            name: true,
+            email: true
+          }
+        },
         members: {
           select: {
             id: true,
@@ -102,7 +108,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { name, sport, department, captainId } = await request.json()
+    const { name, sport, department, captainId, coachId } = await request.json()
 
     if (!name || !sport || !department) {
       return NextResponse.json(
@@ -116,10 +122,17 @@ export async function POST(request: NextRequest) {
         name,
         sport,
         department,
+        coachId,
         createdBy: decoded.userId
       },
       include: {
         creator: {
+          select: {
+            name: true,
+            email: true
+          }
+        },
+        coach: {
           select: {
             name: true,
             email: true
@@ -179,7 +192,7 @@ export async function PUT(request: NextRequest) {
       )
     }
 
-    const { id, name, sport, department, captainId } = await request.json()
+    const { id, name, sport, department, captainId, coachId } = await request.json()
 
     if (!id) {
       return NextResponse.json(
@@ -193,7 +206,22 @@ export async function PUT(request: NextRequest) {
       data: {
         name,
         sport,
-        department
+        department,
+        coachId
+      },
+      include: {
+        creator: {
+          select: {
+            name: true,
+            email: true
+          }
+        },
+        coach: {
+          select: {
+            name: true,
+            email: true
+          }
+        }
       }
     })
 

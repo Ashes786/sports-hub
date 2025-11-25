@@ -27,6 +27,7 @@ model User {
 
   // Relations
   team     Team?  @relation("UserTeam", fields: [teamID], references: [id])
+  coachedTeams Team[] @relation("TeamCoach")
   posts    Post[]
   events   Event[]
   teams    Team[] @relation("TeamCreator")
@@ -40,12 +41,14 @@ model Team {
   name      String
   sport     String
   department String   // All team members from same department
+  coachId   String?  // Assigned coach (optional)
   createdBy String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   // Relations
   creator User   @relation("TeamCreator", fields: [createdBy], references: [id])
+  coach   User?  @relation("TeamCoach", fields: [coachId], references: [id])
   members User[] @relation("UserTeam")
   matchesAsTeamA Event[] @relation("MatchTeamA")
   matchesAsTeamB Event[] @relation("MatchTeamB")

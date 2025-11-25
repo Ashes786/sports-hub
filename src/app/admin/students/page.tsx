@@ -7,6 +7,10 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Users, Plus, Edit, Trash2, Search, Filter, Mail, Phone } from 'lucide-react'
 
 interface Student {
@@ -27,7 +31,15 @@ export default function AdminStudents() {
   const [students, setStudents] = useState<Student[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
   const [userName, setUserName] = useState('')
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    studentID: '',
+    department: ''
+  })
   const router = useRouter()
 
   useEffect(() => {
@@ -85,6 +97,56 @@ export default function AdminStudents() {
     }
   }
 
+  const handleCreateStudent = async () => {
+    if (!formData.name || !formData.email || !formData.password || !formData.studentID || !formData.department) {
+      alert('Please fill in all required fields')
+      return
+    }
+
+    try {
+      let token = localStorage.getItem('token')
+      
+      if (!token) {
+        const cookies = document.cookie.split(';')
+        const tokenCookie = cookies.find(cookie => cookie.trim().startsWith('token='))
+        if (tokenCookie) {
+          token = tokenCookie.trim().split('=')[1]
+        }
+      }
+
+      const response = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          ...formData,
+          role: 'STUDENT'
+        })
+      })
+
+      if (response.ok) {
+        await fetchStudents()
+        setIsCreateDialogOpen(false)
+        setFormData({
+          name: '',
+          email: '',
+          password: '',
+          studentID: '',
+          department: ''
+        })
+        alert('Student created successfully!')
+      } else {
+        const error = await response.json()
+        alert(error.error || 'Failed to create student')
+      }
+    } catch (error) {
+      console.error('Error creating student:', error)
+      alert('Error creating student')
+    }
+  }
+
   const handleLogout = () => {
     router.push('/')
   }
@@ -114,10 +176,92 @@ export default function AdminStudents() {
           <div>
             <p className="text-gray-600 mt-1">View and manage all student accounts</p>
           </div>
-          <Button className="bg-blue-600 hover:bg-blue-700">
-            <Plus className="h-4 w-4 mr-2" />
-            Add Student
-          </Button>
+          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="bg-blue-600 hover:bg-blue-700">
+                <Plus className="h-4 w-4 mr-2" />
+                Add Student
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[500px]">
+              <DialogHeader>
+                <DialogTitle>Add New Student</DialogTitle>
+                <DialogDescription>
+                  Create a new student account in the system.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="name">Full Name *</Label>
+                  <Input
+                    id="name"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    placeholder="Enter student's full name"
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="email">Email Address *</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    placeholder="Enter email address"
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="password">Password *</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    value={formData.password}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    placeholder="Enter password"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="studentID">Student ID *</Label>
+                    <Input
+                      id="studentID"
+                      value={formData.studentID}
+                      onChange={(e) => setFormData({ ...formData, studentID: e.target.value })}
+                      placeholder="Enter student ID"
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="department">Department *</Label>
+                    <Select value={formData.department} onValueChange={(value) => setFormData({ ...formData, department: value })}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select department" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="BS Computer Science">BS Computer Science</SelectItem>
+                        <SelectItem value="BS English">BS English</SelectItem>
+                        <SelectItem value="BS Physics">BS Physics</SelectItem>
+                        <SelectItem value="BS Chemistry">BS Chemistry</SelectItem>
+                        <SelectItem value="BS Mathematics">BS Mathematics</SelectItem>
+                        <SelectItem value="BS Business Administration">BS Business Administration</SelectItem>
+                        <SelectItem value="BS Economics">BS Economics</SelectItem>
+                        <SelectItem value="BS Psychology">BS Psychology</SelectItem>
+                        <SelectItem value="BS Sociology">BS Sociology</SelectItem>
+                        <SelectItem value="BS Mass Communication">BS Mass Communication</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleCreateStudent}>
+                  Add Student
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
 
         {/* Search and Filter */}

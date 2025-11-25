@@ -7,6 +7,10 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
 import { MessageSquare, Plus, Edit, Trash2, Search, Filter, Eye, MessageCircle, Heart, Share } from 'lucide-react'
 
 interface Post {
@@ -28,6 +32,13 @@ export default function AdminPosts() {
   const [posts, setPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [formData, setFormData] = useState({
+    content: '',
+    imageURL: ''
+  })
   const [userName, setUserName] = useState('')
   const router = useRouter()
 
@@ -128,6 +139,81 @@ export default function AdminPosts() {
     }
   }
 
+  const handleCreatePost = async () => {
+    if (!formData.content.trim()) {
+      alert('Please enter post content')
+      return
+    }
+
+    setIsSubmitting(true)
+
+    try {
+      let token = localStorage.getItem('token')
+      
+      if (!token) {
+        const cookies = document.cookie.split(';')
+        const tokenCookie = cookies.find(cookie => cookie.trim().startsWith('token='))
+        if (tokenCookie) {
+          token = tokenCookie.trim().split('=')[1]
+        }
+      }
+
+      let imageUrl = formData.imageURL
+
+      // If a file is selected, upload it first
+      if (selectedFile) {
+        const formDataUpload = new FormData()
+        formDataUpload.append('file', selectedFile)
+
+        const uploadResponse = await fetch('/api/upload', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          },
+          body: formDataUpload
+        })
+
+        if (uploadResponse.ok) {
+          const uploadData = await uploadResponse.json()
+          imageUrl = uploadData.url
+        } else {
+          const error = await uploadResponse.json()
+          alert(error.error || 'Failed to upload image')
+          setIsSubmitting(false)
+          return
+        }
+      }
+
+      const response = await fetch('/api/student/feed', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          content: formData.content,
+          imageURL: imageUrl
+        })
+      })
+
+      if (response.ok) {
+        await fetchPosts()
+        setIsCreateDialogOpen(false)
+        setFormData({ content: '', imageURL: '' })
+        setSelectedFile(null)
+        alert('Post created successfully!')
+      } else {
+        const error = await response.json()
+        alert(error.error || 'Failed to create post')
+      }
+    } catch (error) {
+      console.error('Error creating post:', error)
+      alert('Error creating post')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -147,6 +233,103 @@ export default function AdminPosts() {
           <div>
             <p className="text-gray-600 mt-1">Moderate and manage all user posts</p>
           </div>
+          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="bg-blue-600 hover:bg-blue-700">
+                <Plus className="h-4 w-4 mr-2" />
+                Create Post
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[500px]">
+              <DialogHeader>
+                <DialogTitle>Create New Post</DialogTitle>
+                <DialogDescription>
+                  Share an announcement or update with all students.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="content">Post Content *</Label>
+                  <Textarea
+                    id="content"
+                    value={formData.content}
+                    onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                    placeholder="What would you like to announce?"
+                    rows={6}
+                    required
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="image">Image (optional)</Label>
+                  <div className="space-y-2">
+                    <Input
+                      id="image"
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0]
+                        if (file) {
+                          setSelectedFile(file)
+                          setFormData({ ...formData, imageURL: '' })
+                        }
+                      }}
+                      className="cursor-pointer"
+                    />
+                    {selectedFile && (
+                      <div className="flex items-center gap-2 p-2 bg-gray-50 rounded">
+                        <span className="text-sm text-gray-600">Selected: {selectedFile.name}</span>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedFile(null)
+                            const input = document.getElementById('image') as HTMLInputElement
+                            if (input) input.value = ''
+                          }}
+                        >
+                          Remove
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-500">
+                    Or enter image URL:
+                  </p>
+                  <Input
+                    type="url"
+                    value={formData.imageURL}
+                    onChange={(e) => {
+                      setFormData({ ...formData, imageURL: e.target.value })
+                      setSelectedFile(null)
+                    }}
+                    placeholder="https://example.com/image.jpg"
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => {
+                  setIsCreateDialogOpen(false)
+                  setSelectedFile(null)
+                }}>
+                  Cancel
+                </Button>
+                <Button onClick={handleCreatePost} disabled={isSubmitting}>
+                  {isSubmitting ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Publishing...
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Publish Post
+                    </>
+                  )}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
 
         {/* Search and Filter */}

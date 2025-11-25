@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
-import { Calendar, Users, Trophy, Plus, Crown } from 'lucide-react'
+import { Calendar, Users, Trophy, Plus, Crown, MapPin } from 'lucide-react'
 import Link from 'next/link'
 
 interface Event {
@@ -16,6 +16,7 @@ interface Event {
   description?: string
   date: string
   sport: string
+  location?: string
   creator: {
     name: string
   }
@@ -163,6 +164,22 @@ export default function StudentEvents() {
     router.push('/')
   }
 
+  const getEventBackgroundImage = (sport: string) => {
+    const sportImages = {
+      'Cricket': '/cricket-event-action.jpg',
+      'Football': '/football-event-action.jpg',
+      'Basketball': '/basketball-event-action.jpg',
+      'Badminton': '/badminton-event-bg.jpg',
+      'Tennis': '/tennis-event-bg.jpg',
+      'Volleyball': '/football-event-bg.jpg',
+      'Hockey': '/basketball-event-action.jpg',
+      'Swimming': '/football-event-action.jpg',
+      'Athletics': '/cricket-event-action.jpg',
+      'Table Tennis': '/tennis-event-bg.jpg'
+    }
+    return sportImages[sport as keyof typeof sportImages] || '/cricket-event-action.jpg'
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -189,28 +206,58 @@ export default function StudentEvents() {
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {events.map((event) => {
             const isParticipating = event.participants.length > 0
+            const isToday = new Date(event.date).toDateString() === new Date().toDateString()
+            
             return (
-              <Card key={event.id} className="hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <div className="flex justify-between items-start">
+              <Card key={event.id} className={`hover:shadow-lg transition-shadow overflow-hidden ${isToday ? 'ring-2 ring-blue-500' : ''}`}>
+                {/* Background Image with Blue Overlay */}
+                <div 
+                  className="relative h-48 bg-cover bg-center"
+                  style={{
+                    backgroundImage: `url("${getEventBackgroundImage(event.sport)}")`
+                  }}
+                >
+                  <div className="absolute inset-0 bg-blue-600 bg-opacity-80"></div>
+                  <div className="relative z-10 p-4 h-full flex flex-col justify-between text-white">
                     <div>
-                      <CardTitle className="text-lg">{event.title}</CardTitle>
-                      <Badge variant="secondary">{event.sport}</Badge>
+                      <CardTitle className="text-xl text-white mb-2">{event.title}</CardTitle>
+                      <div className="flex items-center space-x-2">
+                        <Badge className="bg-white text-blue-800 hover:bg-gray-100">
+                          {event.sport}
+                        </Badge>
+                        {isParticipating && (
+                          <Badge variant="destructive" className="ml-2">
+                            Participating
+                          </Badge>
+                        )}
+                        {isToday && (
+                          <Badge variant="destructive" className="ml-2">
+                            TODAY
+                          </Badge>
+                        )}
+                      </div>
                     </div>
-                    {isParticipating && (
-                      <Badge variant="destructive" className="text-xs">
-                        Participating
-                      </Badge>
-                    )}
+                    <div className="flex items-center space-x-2 text-white text-sm">
+                      <MapPin className="h-4 w-4" />
+                      <span className="text-white">
+                        {event.location || 'NUML Sports Complex'}
+                      </span>
+                    </div>
                   </div>
-                  <CardDescription className="mt-2">
-                    {event.description}
-                  </CardDescription>
-                  <div className="flex items-center text-sm text-gray-500 mt-2">
+                </div>
+                
+                <CardHeader className="pb-3">
+                  <div className="flex items-center text-sm text-gray-500">
                     <Calendar className="h-4 w-4 mr-2" />
                     {new Date(event.date).toLocaleDateString()} at {new Date(event.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </div>
+                  {event.description && (
+                    <CardDescription className="mt-2">
+                      {event.description}
+                    </CardDescription>
+                  )}
                 </CardHeader>
+                
                 <CardContent>
                   <div className="flex justify-between items-center">
                     <div>

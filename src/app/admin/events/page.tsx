@@ -7,6 +7,10 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Calendar, Plus, Edit, Trash2, MapPin, Users, Trophy } from 'lucide-react'
 
 interface Event {
@@ -24,14 +28,33 @@ interface Event {
   }
 }
 
+interface Team {
+  id: string
+  name: string
+  sport: string
+}
+
 export default function AdminEvents() {
   const [events, setEvents] = useState<Event[]>([])
+  const [teams, setTeams] = useState<Team[]>([])
   const [loading, setLoading] = useState(true)
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
   const [userName, setUserName] = useState('')
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    sport: '',
+    date: '',
+    type: 'TOURNAMENT',
+    location: '',
+    teamAID: '',
+    teamBID: ''
+  })
   const router = useRouter()
 
   useEffect(() => {
     fetchEvents()
+    fetchTeams()
     // Get user name from localStorage
     const user = localStorage.getItem('user')
     if (user) {
@@ -72,8 +95,94 @@ export default function AdminEvents() {
     } catch (error) {
       console.error('Error fetching events:', error)
       router.push('/login')
+    }
+  }
+
+  const fetchTeams = async () => {
+    try {
+      let token = localStorage.getItem('token')
+      
+      if (!token) {
+        const cookies = document.cookie.split(';')
+        const tokenCookie = cookies.find(cookie => cookie.trim().startsWith('token='))
+        if (tokenCookie) {
+          token = tokenCookie.trim().split('=')[1]
+        }
+      }
+      
+      if (!token) {
+        return
+      }
+
+      const response = await fetch('/api/admin/teams', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setTeams(data)
+      }
+    } catch (error) {
+      console.error('Error fetching teams:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleCreateEvent = async () => {
+    if (!formData.title || !formData.sport || !formData.date || !formData.type) {
+      alert('Please fill in all required fields')
+      return
+    }
+
+    if (formData.type === 'MATCH' && (!formData.teamAID || !formData.teamBID)) {
+      alert('Please select both teams for a match')
+      return
+    }
+
+    try {
+      let token = localStorage.getItem('token')
+      
+      if (!token) {
+        const cookies = document.cookie.split(';')
+        const tokenCookie = cookies.find(cookie => cookie.trim().startsWith('token='))
+        if (tokenCookie) {
+          token = tokenCookie.trim().split('=')[1]
+        }
+      }
+
+      const response = await fetch('/api/admin/events', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(formData)
+      })
+
+      if (response.ok) {
+        await fetchEvents()
+        setIsCreateDialogOpen(false)
+        setFormData({
+          title: '',
+          description: '',
+          sport: '',
+          date: '',
+          type: 'TOURNAMENT',
+          location: '',
+          teamAID: '',
+          teamBID: ''
+        })
+        alert('Event created successfully!')
+      } else {
+        const error = await response.json()
+        alert(error.error || 'Failed to create event')
+      }
+    } catch (error) {
+      console.error('Error creating event:', error)
+      alert('Error creating event')
     }
   }
 
@@ -149,10 +258,131 @@ export default function AdminEvents() {
           <div>
             <p className="text-gray-600 mt-1">Create and manage sports events and tournaments</p>
           </div>
-          <Button className="bg-blue-600 hover:bg-blue-700">
-            <Plus className="h-4 w-4 mr-2" />
-            Create Event
-          </Button>
+          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="bg-blue-600 hover:bg-blue-700">
+                <Plus className="h-4 w-4 mr-2" />
+                Create Event
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[500px]">
+              <DialogHeader>
+                <DialogTitle>Create New Event</DialogTitle>
+                <DialogDescription>
+                  Create a new sports event or tournament for students to participate in.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="title">Event Title *</Label>
+                  <Input
+                    id="title"
+                    value={formData.title}
+                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                    placeholder="Enter event title"
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="description">Description</Label>
+                  <Input
+                    id="description"
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    placeholder="Enter event description"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="sport">Sport *</Label>
+                    <Select value={formData.sport} onValueChange={(value) => setFormData({ ...formData, sport: value })}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select sport" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="CRICKET">Cricket</SelectItem>
+                        <SelectItem value="FOOTBALL">Football</SelectItem>
+                        <SelectItem value="BASKETBALL">Basketball</SelectItem>
+                        <SelectItem value="VOLLEYBALL">Volleyball</SelectItem>
+                        <SelectItem value="TENNIS">Tennis</SelectItem>
+                        <SelectItem value="BADMINTON">Badminton</SelectItem>
+                        <SelectItem value="TABLE_TENNIS">Table Tennis</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="type">Event Type *</Label>
+                    <Select value={formData.type} onValueChange={(value) => setFormData({ ...formData, type: value })}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="TOURNAMENT">Tournament</SelectItem>
+                        <SelectItem value="MATCH">Match</SelectItem>
+                        <SelectItem value="PRACTICE">Practice</SelectItem>
+                        <SelectItem value="TRIALS">Trials</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="date">Date & Time *</Label>
+                  <Input
+                    id="date"
+                    type="datetime-local"
+                    value={formData.date}
+                    onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="location">Location</Label>
+                  <Input
+                    id="location"
+                    value={formData.location}
+                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                    placeholder="Enter event location"
+                  />
+                </div>
+                {formData.type === 'MATCH' && (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="teamA">Team A *</Label>
+                      <Select value={formData.teamAID} onValueChange={(value) => setFormData({ ...formData, teamAID: value })}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select Team A" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {teams.filter(team => team.sport === formData.sport).map((team) => (
+                            <SelectItem key={team.id} value={team.id}>{team.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="teamB">Team B *</Label>
+                      <Select value={formData.teamBID} onValueChange={(value) => setFormData({ ...formData, teamBID: value })}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select Team B" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {teams.filter(team => team.sport === formData.sport && team.id !== formData.teamAID).map((team) => (
+                            <SelectItem key={team.id} value={team.id}>{team.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                )}
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleCreateEvent}>
+                  Create Event
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
 
         {/* Events Grid */}

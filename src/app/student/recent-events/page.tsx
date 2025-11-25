@@ -77,7 +77,7 @@ export default function RecentEvents() {
         return
       }
 
-      const response = await fetch('/api/student/events', {
+      const response = await fetch('/api/student/recent-events', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -99,21 +99,13 @@ export default function RecentEvents() {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
     const today = new Date()
-    const tomorrow = new Date(today)
-    tomorrow.setDate(tomorrow.getDate() + 1)
+    const daysDiff = Math.floor((today.getTime() - date.getTime()) / (1000 * 60 * 60 * 24))
     
-    if (date < tomorrow) {
-      return {
-        weekday: date.toLocaleDateString('en-US', { weekday: 'long' }),
-        date: date.toLocaleDateString(),
-        time: date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      }
-    } else {
-      return {
-        weekday: date.toLocaleDateString('en-US', { weekday: 'long' }),
-        date: date.toLocaleDateString(),
-        time: date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      }
+    return {
+      weekday: date.toLocaleDateString('en-US', { weekday: 'long' }),
+      date: date.toLocaleDateString(),
+      time: date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      daysAgo: daysDiff
     }
   }
 
@@ -149,11 +141,11 @@ export default function RecentEvents() {
     return sportImages[sport as keyof typeof sportImages] || '/cricket-event-bg.jpg'
   }
 
-  const getUrgencyColor = (daysUntil: number) => {
-    if (daysUntil <= 7) return 'text-green-600'
-    if (daysUntil <= 14) return 'text-yellow-600'
-    if (daysUntil <= 30) return 'text-orange-600'
-    return 'text-red-600'
+  const getUrgencyColor = (daysAgo: number) => {
+    if (daysAgo === 0) return 'text-green-600'
+    if (daysAgo <= 7) return 'text-blue-600'
+    if (daysAgo <= 30) return 'text-gray-600'
+    return 'text-gray-500'
   }
 
   const handleLogout = () => {
@@ -243,8 +235,8 @@ export default function RecentEvents() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2 text-sm text-gray-600">
                     <Clock className="h-4 w-4" />
-                    <span className={getUrgencyColor(formattedDate.daysUntil)}>
-                      {formattedDate.daysUntil > 0 ? `${formattedDate.daysUntil} days away` : 'Today'}
+                    <span className={getUrgencyColor(formattedDate.daysAgo)}>
+                      {formattedDate.daysAgo === 0 ? 'Today' : `${formattedDate.daysAgo} days ago`}
                     </span>
                   </div>
                   <div className="flex items-center space-x-2 text-sm text-gray-600">

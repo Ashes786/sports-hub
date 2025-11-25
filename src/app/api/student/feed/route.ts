@@ -81,6 +81,14 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Check if user is admin - only admins can create posts
+    if (decoded.role !== 'ADMIN') {
+      return NextResponse.json(
+        { error: 'Forbidden - Only admins can create posts' },
+        { status: 403 }
+      )
+    }
+
     const { content, imageURL } = await request.json()
 
     if (!content) {
